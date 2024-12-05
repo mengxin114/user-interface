@@ -92,8 +92,33 @@ int main(int argc, char *argv[]) {
     // the widget that will show the video
     QVideoWidget *videoWidget = new QVideoWidget;
 
+    // create the QSlider
+    QSlider *slider = new QSlider(Qt::Horizontal);
+    // 设置滑块的样式表
+    slider->setStyleSheet(
+        "QSlider {"
+        "   height: 10px;"
+        "   background: #ccc;" // 背景色
+        "}"
+        "QSlider::groove:horizontal {"
+        "   height: 10px;"
+        "   background: #f0f0f0;"
+        "   border-radius: 5px;"
+        "}"
+        "QSlider::handle:horizontal {"
+        "   background: #0078d7;" // 滑块的颜色
+        "   width: 20px;"
+        "   border-radius: 10px;"
+        "}"
+        "QSlider::handle:horizontal:hover {"
+        "   background: #0056a1;" // 鼠标悬停时颜色
+        "}"
+        );
+    slider->setRange(0, 100);
+    slider->setValue(0);
+
     // the QMediaPlayer which controls the playback
-    ThePlayer *player = new ThePlayer;
+    ThePlayer *player = new ThePlayer(slider);
     player->setVideoOutput(videoWidget);
 
     // a row of buttons
@@ -124,8 +149,12 @@ int main(int argc, char *argv[]) {
     window.setWindowTitle("tomeo");
     window.setMinimumSize(800, 680);
 
+    QObject::connect(slider, &QSlider::valueChanged, player, &ThePlayer::onSliderValueChanged);
+    QObject::connect(player, &ThePlayer::updateSliderPosition, slider, &QSlider::setValue);
+
     // add the video and the buttons to the top level widget
     top->addWidget(videoWidget);
+    top->addWidget(slider);
     top->addWidget(buttonWidget);
 
     // showtime!
