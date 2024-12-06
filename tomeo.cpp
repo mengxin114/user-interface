@@ -121,6 +121,25 @@ int main(int argc, char *argv[]) {
     ThePlayer *player = new ThePlayer(slider);
     player->setVideoOutput(videoWidget);
 
+    // pause and play button
+    QPushButton *playPauseButton = new QPushButton("Play/Pause");
+    QObject::connect(playPauseButton, &QPushButton::clicked, player, &ThePlayer::togglePlayPause);
+    playPauseButton->setStyleSheet(
+        "QPushButton {"
+        "background-color: #4CAF50;" // 绿色背景
+        "color: white;" // 白色字体
+        "border: none;" // 不显示边框
+        "padding: 15px 32px;" // 按钮的内边距
+        "text-align: center;" // 文字居中
+        "text-decoration: none;" // 不加下划线
+        "font-size: 16px;" // 字体大小
+        "margin: 4px 2px;" // 外边距
+        "border-radius: 8px;" // 圆角
+        "} "
+        "QPushButton:hover {"
+        "background-color: #45a049;" // 鼠标悬停时的背景颜色
+        "}"
+        );
     // a row of buttons
     QWidget *buttonWidget = new QWidget();
     // a list of the buttons
@@ -154,6 +173,7 @@ int main(int argc, char *argv[]) {
 
     // add the video and the buttons to the top level widget
     top->addWidget(videoWidget);
+    top->addWidget(playPauseButton);
     top->addWidget(slider);
     top->addWidget(buttonWidget);
 

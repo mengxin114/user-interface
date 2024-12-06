@@ -54,5 +54,17 @@ void ThePlayer::onSliderValueChanged(int value) {
         // 计算新播放位置
         int newPosition = static_cast<int>((static_cast<double>(value) / 100) * duration());
         setPosition(newPosition); // 设置新的播放位置
+        if(isPlaying){
+            play();
+        }
     }
+}
+
+void ThePlayer::togglePlayPause() {
+    if (isPlaying) {
+        play();
+    } else {
+        pause();
+    }
+    isPlaying = !isPlaying;
 }

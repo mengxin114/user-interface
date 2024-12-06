@@ -25,6 +25,7 @@ private:
     long updateCount = 0;
     QSlider* slider; // 使用指针接收外部的 slider
     bool isSliderBeingDragged; // 用于指示进度条是否正在被拖动
+    bool isPlaying = false;
 
 public:
     ThePlayer(QSlider* slider) : QMediaPlayer(NULL), slider(slider), isSliderBeingDragged(false) {
@@ -63,6 +64,8 @@ public slots:
     void onSliderValueChanged(int value);
     // start playing this ButtonInfo
     void jumpTo (TheButtonInfo* button);
+
+    void togglePlayPause();
 };
 
 #endif //CW2_THE_PLAYER_H
