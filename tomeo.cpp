@@ -117,6 +117,46 @@ int main(int argc, char *argv[]) {
     slider->setRange(0, 100);
     slider->setValue(0);
 
+    // 创建点赞、收藏和赞赏按钮
+    QPushButton *likeButton = new QPushButton("❤️ Like");
+    QPushButton *favoriteButton = new QPushButton("⭐ Favorite");
+    QPushButton *rewardButton = new QPushButton("💰 Reward");
+
+      // 点赞功能
+    QObject::connect(likeButton, &QPushButton::clicked, [&]() {
+        static int likeCount = 0;
+        likeCount++;
+        QMessageBox::information(nullptr, "点赞成功",
+                                QString("当前点赞数：%1").arg(likeCount));
+    });
+
+        // 收藏功能
+    QObject::connect(favoriteButton, &QPushButton::clicked, [&]() {
+        QMessageBox::information(nullptr, "收藏成功", "已将该视频加入收藏列表！");
+    });
+
+      // 赞赏功能
+    QObject::connect(rewardButton, &QPushButton::clicked, [&]() {
+        QMessageBox::information(nullptr, "赞赏成功", "感谢您的支持！");
+    });
+
+    // 设置按钮样式
+    likeButton->setStyleSheet(
+        "QPushButton { font-size: 16px; color: white; background-color: #f66; "
+        "border-radius: 5px; padding: 10px; }");
+    favoriteButton->setStyleSheet(
+        "QPushButton { font-size: 16px; color: white; background-color: #fa0; "
+        "border-radius: 5px; padding: 10px; }");
+    rewardButton->setStyleSheet(
+        "QPushButton { font-size: 16px; color: white; background-color: #3a3; "
+        "border-radius: 5px; padding: 10px; }");
+
+      // 创建一个水平布局，用于三个按钮
+    QHBoxLayout *actionButtonsLayout = new QHBoxLayout();
+    actionButtonsLayout->addWidget(likeButton);
+    actionButtonsLayout->addWidget(favoriteButton);
+    actionButtonsLayout->addWidget(rewardButton);
+
     // the QMediaPlayer which controls the playback
     ThePlayer *player = new ThePlayer(slider);
     player->setVideoOutput(videoWidget);
@@ -175,6 +215,7 @@ int main(int argc, char *argv[]) {
     top->addWidget(videoWidget);
     top->addWidget(playPauseButton);
     top->addWidget(slider);
+    top->addLayout(actionButtonsLayout); // 添加点赞、收藏和赞赏按钮
     top->addWidget(buttonWidget);
 
     // showtime!
