@@ -1,12 +1,3 @@
-//
-//    ______
-//   /_  __/___  ____ ___  ___  ____
-//    / / / __ \/ __ `__ \/ _ \/ __ \
-//   / / / /_/ / / / / / /  __/ /_/ /
-//  /_/  \____/_/ /_/ /_/\___/\____/
-//              video for sports enthusiasts...
-//
-//
 #include <iostream>
 #include <QApplication>
 #include <QtMultimediaWidgets/QVideoWidget>
@@ -25,15 +16,9 @@
 #include "the_player.h"
 #include "the_button.h"
 
-<<<<<<< HEAD
 // 读取视频和缩略图
 std::vector<TheButtonInfo> getInfoIn(std::string loc) {
     std::vector<TheButtonInfo> out;
-=======
-// read in videos and thumbnails to this directory
-std::vector<TheButtonInfo> getInfoIn (std::string loc) {
-    std::vector<TheButtonInfo> out =  std::vector<TheButtonInfo>();
->>>>>>> 81b2cf24fedab7b8f25553119737118842a9d46e
     QDir dir(QString::fromStdString(loc));
     QDirIterator it(dir);
 
@@ -83,7 +68,7 @@ int main(int argc, char* argv[]) {
 
     QPushButton* playPauseButton = new QPushButton("Play/Pause");
 
-    // Create Like, Favorite, and Reward buttons
+    // 创建点赞、收藏和赞赏按钮
     QPushButton *likeButton = new QPushButton("❤️ Like");
     QPushButton *favoriteButton = new QPushButton("⭐ Favorite");
     QPushButton *rewardButton = new QPushButton("💰 Reward");
@@ -98,15 +83,15 @@ int main(int argc, char* argv[]) {
 
     // 收藏功能
     QObject::connect(favoriteButton, &QPushButton::clicked, [&]() {
-        QMessageBox::information(nullptr, "Favorite Success", "Video added to your favorites!");
+        QMessageBox::information(nullptr, "收藏成功", "已将该视频加入收藏列表！");
     });
 
-    // Reward button functionality
+    // 赞赏功能
     QObject::connect(rewardButton, &QPushButton::clicked, [&]() {
-        QMessageBox::information(nullptr, "Reward Success", "Thank you for your support!");
+        QMessageBox::information(nullptr, "赞赏成功", "感谢您的支持！");
     });
 
-
+    QHBoxLayout* actionButtonsLayout = new QHBoxLayout();
     actionButtonsLayout->addWidget(likeButton);
     actionButtonsLayout->addWidget(favoriteButton);
     actionButtonsLayout->addWidget(rewardButton);
@@ -137,7 +122,6 @@ int main(int argc, char* argv[]) {
     window.setWindowTitle("Tomeo");
     window.setMinimumSize(800, 680);
 
-    // Connect slider and player signals
     QObject::connect(slider, &QSlider::valueChanged, player, &ThePlayer::onSliderValueChanged);
     QObject::connect(player, &ThePlayer::updateSliderPosition, slider, &QSlider::setValue);
 
@@ -151,4 +135,3 @@ int main(int argc, char* argv[]) {
 
     return app.exec();
 }
-
