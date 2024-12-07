@@ -1,70 +1,63 @@
-//
-//
-//
-
 #ifndef CW2_THE_PLAYER_H
 #define CW2_THE_PLAYER_H
-
 
 #include <QApplication>
 #include <QMediaPlayer>
 #include "the_button.h"
 #include <vector>
 #include <QTimer>
-#include <QProgressBar>
 #include <QSlider>
+#include <set>  // 引入set容器
 
 class ThePlayer : public QMediaPlayer {
-
-Q_OBJECT
+    Q_OBJECT
 
 private:
     std::vector<TheButtonInfo>* infos;
     std::vector<TheButton*>* buttons;
     QTimer* mTimer;
     long updateCount = 0;
-    QSlider* slider; // 使用指针接收外部的 slider
-    bool isSliderBeingDragged; // 用于指示进度条是否正在被拖动
+    QSlider* slider;
+    bool isSliderBeingDragged;
     bool isPlaying = false;
+
+    std::set<int> usedIndices;  // 用于记录已分配的按钮索引，确保每个按钮内容不重复
 
 public:
     ThePlayer(QSlider* slider) : QMediaPlayer(NULL), slider(slider), isSliderBeingDragged(false) {
-        setVolume(0); // be slightly less annoying
-        connect (this, SIGNAL (stateChanged(QMediaPlayer::State)), this, SLOT (playStateChanged(QMediaPlayer::State)) );
+        setVolume(0);  // 设置音量为0
+        connect(this, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(playStateChanged(QMediaPlayer::State)));
 
         mTimer = new QTimer(this);
-        mTimer->setInterval(100); // 100ms is 1/10 of one second between ...
+        mTimer->setInterval(100);  // 设置定时器为0.1秒
         mTimer->start();
-        connect( mTimer, SIGNAL (timeout()), SLOT ( shuffle() ) ); // ...running shuffle method
-        connect(mTimer, &QTimer::timeout, this, &ThePlayer::onTimeout); // 将定时器的超时信号连接到槽
+        connect(mTimer, SIGNAL(timeout()), SLOT(onTimeout()));  // 每0.1秒调用一次onTimeout方法
+
         connect(slider, &QSlider::sliderPressed, this, [this]() {
-            isSliderBeingDragged = true; // 标记进度条正在被拖动
+            isSliderBeingDragged = true;
         });
 
         connect(slider, &QSlider::sliderReleased, this, [this]() {
-            isSliderBeingDragged = false; // 标记拖动结束
+            isSliderBeingDragged = false;
         });
     }
 
-    // all buttons have been setup, store pointers here
     void setContent(std::vector<TheButton*>* b, std::vector<TheButtonInfo>* i);
 
     void updateSlider();
 
 private slots:
+    void shuffle();  // 刷新按钮内容
+    void playStateChanged(QMediaPlayer::State ms);
+    void onTimeout();  // 定时器超时时更新进度条
 
-    // change the image and video for one button every one second
-    void shuffle();
-    void onTimeout(); // 新增的槽，用于更新进度条
-    void playStateChanged (QMediaPlayer::State ms);
 signals:
-    void progressUpdated(int value); // 定义信号
+    void progressUpdated(int value);
     void updateSliderPosition(int value);
+
 public slots:
     void onSliderValueChanged(int value);
-    // start playing this ButtonInfo
-    void jumpTo (TheButtonInfo* button);
-
+    void jumpTo(TheButtonInfo* button);
     void togglePlayPause();
 };
 
