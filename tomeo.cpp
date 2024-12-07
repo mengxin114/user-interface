@@ -25,9 +25,15 @@
 #include "the_player.h"
 #include "the_button.h"
 
+<<<<<<< HEAD
 // 读取视频和缩略图
 std::vector<TheButtonInfo> getInfoIn(std::string loc) {
     std::vector<TheButtonInfo> out;
+=======
+// read in videos and thumbnails to this directory
+std::vector<TheButtonInfo> getInfoIn (std::string loc) {
+    std::vector<TheButtonInfo> out =  std::vector<TheButtonInfo>();
+>>>>>>> 81b2cf24fedab7b8f25553119737118842a9d46e
     QDir dir(QString::fromStdString(loc));
     QDirIterator it(dir);
 
@@ -77,7 +83,7 @@ int main(int argc, char* argv[]) {
 
     QPushButton* playPauseButton = new QPushButton("Play/Pause");
 
-    // 创建点赞、收藏和赞赏按钮
+    // Create Like, Favorite, and Reward buttons
     QPushButton *likeButton = new QPushButton("❤️ Like");
     QPushButton *favoriteButton = new QPushButton("⭐ Favorite");
     QPushButton *rewardButton = new QPushButton("💰 Reward");
@@ -92,15 +98,15 @@ int main(int argc, char* argv[]) {
 
     // 收藏功能
     QObject::connect(favoriteButton, &QPushButton::clicked, [&]() {
-        QMessageBox::information(nullptr, "收藏成功", "已将该视频加入收藏列表！");
+        QMessageBox::information(nullptr, "Favorite Success", "Video added to your favorites!");
     });
 
-    // 赞赏功能
+    // Reward button functionality
     QObject::connect(rewardButton, &QPushButton::clicked, [&]() {
-        QMessageBox::information(nullptr, "赞赏成功", "感谢您的支持！");
+        QMessageBox::information(nullptr, "Reward Success", "Thank you for your support!");
     });
 
-    QHBoxLayout* actionButtonsLayout = new QHBoxLayout();
+
     actionButtonsLayout->addWidget(likeButton);
     actionButtonsLayout->addWidget(favoriteButton);
     actionButtonsLayout->addWidget(rewardButton);
@@ -131,6 +137,7 @@ int main(int argc, char* argv[]) {
     window.setWindowTitle("Tomeo");
     window.setMinimumSize(800, 680);
 
+    // Connect slider and player signals
     QObject::connect(slider, &QSlider::valueChanged, player, &ThePlayer::onSliderValueChanged);
     QObject::connect(player, &ThePlayer::updateSliderPosition, slider, &QSlider::setValue);
 
