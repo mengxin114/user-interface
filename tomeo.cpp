@@ -28,199 +28,204 @@
 
 // read in videos and thumbnails to this directory
 std::vector<TheButtonInfo> getInfoIn (std::string loc) {
-
     std::vector<TheButtonInfo> out =  std::vector<TheButtonInfo>();
-    QDir dir(QString::fromStdString(loc) );
+    QDir dir(QString::fromStdString(loc));
     QDirIterator it(dir);
 
-    while (it.hasNext()) { // for all files
-
+    while (it.hasNext()) {
         QString f = it.next();
 
-            if (f.contains("."))
-
+        if (f.contains("."))
 #if defined(_WIN32)
-            if (f.contains(".wmv"))  { // windows
+        if (f.contains(".wmv")) {
 #else
-            if (f.contains(".mp4") || f.contains("MOV"))  { // mac/linux
+        if (f.contains(".mp4") || f.contains("MOV")) {
 #endif
-
-            QString thumb = f.left( f .length() - 4) +".png";
-            if (QFile(thumb).exists()) { // if a png thumbnail exists
+            QString thumb = f.left(f.length() - 4) + ".png";
+            if (QFile(thumb).exists()) {
                 QImageReader *imageReader = new QImageReader(thumb);
-                    QImage sprite = imageReader->read(); // read the thumbnail
-                    if (!sprite.isNull()) {
-                        QIcon* ico = new QIcon(QPixmap::fromImage(sprite)); // voodoo to create an icon for the button
-                        QUrl* url = new QUrl(QUrl::fromLocalFile( f )); // convert the file location to a generic url
-                        out . push_back(TheButtonInfo( url , ico  ) ); // add to the output list
-                    }
-                    else
-                        qDebug() << "warning: skipping video because I couldn't process thumbnail " << thumb << endl;
+                QImage sprite = imageReader->read();
+                if (!sprite.isNull()) {
+                    QIcon *ico = new QIcon(QPixmap::fromImage(sprite));
+                    QUrl *url = new QUrl(QUrl::fromLocalFile(f));
+                    out.push_back(TheButtonInfo(url, ico));
+                } else {
+                    qDebug() << "Warning: skipping video because I couldn't process thumbnail " << thumb;
+                }
+            } else {
+                qDebug() << "Warning: skipping video because I couldn't find thumbnail " << thumb;
             }
-            else
-                qDebug() << "warning: skipping video because I couldn't find thumbnail " << thumb << endl;
         }
     }
 
     return out;
 }
 
-
 int main(int argc, char *argv[]) {
 
-    // let's just check that Qt is operational first
-    qDebug() << "Qt version: " << QT_VERSION_STR << endl;
+    // Let's just check that Qt is operational first
+    qDebug() << "Qt version: " << QT_VERSION_STR;
 
-    // create the Qt Application
+    // Create the Qt Application
     QApplication app(argc, argv);
 
-    // collect all the videos in the folder
+    // Collect all the videos in the folder
     std::vector<TheButtonInfo> videos;
 
     if (argc == 2)
-        videos = getInfoIn( std::string(argv[1]) );
+        videos = getInfoIn(std::string(argv[1]));
 
     if (videos.size() == 0) {
-
-        const int result = QMessageBox::information(
-                    NULL,
-                    QString("Tomeo"),
-                    QString("no videos found! Add command line argument to \"quoted\" file location."));
+        QMessageBox::information(NULL, QString("Tomeo"), QString("No videos found! Please add command line argument for file location."));
         exit(-1);
     }
 
-    // the widget that will show the video
+    // The widget that will show the video
     QVideoWidget *videoWidget = new QVideoWidget;
 
-    // create the QSlider
+    // Create the QSlider (progress bar)
     QSlider *slider = new QSlider(Qt::Horizontal);
-    // 设置滑块的样式表
     slider->setStyleSheet(
         "QSlider {"
-        "   height: 10px;"
-        "   background: #ccc;" // 背景色
+        "   height: 12px;"
+        "   background: #444;"
+        "   border-radius: 6px;"
         "}"
         "QSlider::groove:horizontal {"
-        "   height: 10px;"
-        "   background: #f0f0f0;"
-        "   border-radius: 5px;"
+        "   height: 8px;"
+        "   background: #666;"
+        "   border-radius: 4px;"
         "}"
         "QSlider::handle:horizontal {"
-        "   background: #0078d7;" // 滑块的颜色
-        "   width: 20px;"
-        "   border-radius: 10px;"
+        "   background: #0078d7;"
+        "   width: 15px;"
+        "   border-radius: 7px;"
+        "   border: 2px solid #fff;"
         "}"
         "QSlider::handle:horizontal:hover {"
-        "   background: #0056a1;" // 鼠标悬停时颜色
+        "   background: #0056a1;"
+        "   border-color: #ccc;"
         "}"
-        );
+    );
     slider->setRange(0, 100);
     slider->setValue(0);
 
-    // 创建点赞、收藏和赞赏按钮
+    // Create Like, Favorite, and Reward buttons
     QPushButton *likeButton = new QPushButton("❤️ Like");
     QPushButton *favoriteButton = new QPushButton("⭐ Favorite");
     QPushButton *rewardButton = new QPushButton("💰 Reward");
 
-      // 点赞功能
+    // Like button functionality
     QObject::connect(likeButton, &QPushButton::clicked, [&]() {
         static int likeCount = 0;
         likeCount++;
-        QMessageBox::information(nullptr, "点赞成功",
-                                QString("当前点赞数：%1").arg(likeCount));
+        QMessageBox::information(nullptr, "Like Success", QString("Current Like Count: %1").arg(likeCount));
     });
 
-        // 收藏功能
+    // Favorite button functionality
     QObject::connect(favoriteButton, &QPushButton::clicked, [&]() {
-        QMessageBox::information(nullptr, "收藏成功", "已将该视频加入收藏列表！");
+        QMessageBox::information(nullptr, "Favorite Success", "Video added to your favorites!");
     });
 
-      // 赞赏功能
+    // Reward button functionality
     QObject::connect(rewardButton, &QPushButton::clicked, [&]() {
-        QMessageBox::information(nullptr, "赞赏成功", "感谢您的支持！");
+        QMessageBox::information(nullptr, "Reward Success", "Thank you for your support!");
     });
 
-    // 设置按钮样式
-    likeButton->setStyleSheet(
-        "QPushButton { font-size: 16px; color: white; background-color: #f66; "
-        "border-radius: 5px; padding: 10px; }");
-    favoriteButton->setStyleSheet(
-        "QPushButton { font-size: 16px; color: white; background-color: #fa0; "
-        "border-radius: 5px; padding: 10px; }");
-    rewardButton->setStyleSheet(
-        "QPushButton { font-size: 16px; color: white; background-color: #3a3; "
-        "border-radius: 5px; padding: 10px; }");
+    // Set button styles
+    QString buttonStyle = "QPushButton {"
+        "font-size: 18px;"
+        "color: white;"
+        "border: none;"
+        "padding: 12px 25px;"
+        "border-radius: 15px;"
+        "background-color: #5c9f5f;"
+        "box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);"
+    "}"
+    "QPushButton:hover {"
+        "background-color: #4a7d4a;"
+        "box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);"
+    "}"
+    "QPushButton:pressed {"
+        "background-color: #3c5e3c;"
+        "box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"
+    "}";
 
-      // 创建一个水平布局，用于三个按钮
+    likeButton->setStyleSheet(buttonStyle);
+    favoriteButton->setStyleSheet(buttonStyle);
+    rewardButton->setStyleSheet(buttonStyle);
+
+    // Create action buttons layout
     QHBoxLayout *actionButtonsLayout = new QHBoxLayout();
     actionButtonsLayout->addWidget(likeButton);
     actionButtonsLayout->addWidget(favoriteButton);
     actionButtonsLayout->addWidget(rewardButton);
 
-    // the QMediaPlayer which controls the playback
+    // The QMediaPlayer which controls the playback
     ThePlayer *player = new ThePlayer(slider);
     player->setVideoOutput(videoWidget);
 
-    // pause and play button
+    // Pause and play button
     QPushButton *playPauseButton = new QPushButton("Play/Pause");
     QObject::connect(playPauseButton, &QPushButton::clicked, player, &ThePlayer::togglePlayPause);
     playPauseButton->setStyleSheet(
         "QPushButton {"
-        "background-color: #4CAF50;" // 绿色背景
-        "color: white;" // 白色字体
-        "border: none;" // 不显示边框
-        "padding: 15px 32px;" // 按钮的内边距
-        "text-align: center;" // 文字居中
-        "text-decoration: none;" // 不加下划线
-        "font-size: 16px;" // 字体大小
-        "margin: 4px 2px;" // 外边距
-        "border-radius: 8px;" // 圆角
+        "background-color: #4CAF50;"
+        "color: white;"
+        "border: none;"
+        "padding: 15px 32px;"
+        "text-align: center;"
+        "font-size: 16px;"
+        "border-radius: 8px;"
         "} "
         "QPushButton:hover {"
-        "background-color: #45a049;" // 鼠标悬停时的背景颜色
+        "background-color: #45a049;"
         "}"
-        );
-    // a row of buttons
+    );
+
+    // Create button widget for video selection
     QWidget *buttonWidget = new QWidget();
-    // a list of the buttons
     std::vector<TheButton*> buttons;
-    // the buttons are arranged horizontally
     QHBoxLayout *layout = new QHBoxLayout();
     buttonWidget->setLayout(layout);
 
-
-    // create the four buttons
-    for ( int i = 0; i < 4; i++ ) {
+    // Create video selection buttons
+    for (int i = 0; i < 4; i++) {
         TheButton *button = new TheButton(buttonWidget);
-        button->connect(button, SIGNAL(jumpTo(TheButtonInfo* )), player, SLOT (jumpTo(TheButtonInfo*))); // when clicked, tell the player to play.
+        button->connect(button, SIGNAL(jumpTo(TheButtonInfo*)), player, SLOT(jumpTo(TheButtonInfo*)));
         buttons.push_back(button);
         layout->addWidget(button);
         button->init(&videos.at(i));
     }
 
-    // tell the player what buttons and videos are available
-    player->setContent(&buttons, & videos);
+    // Set the player content with buttons and videos
+    player->setContent(&buttons, &videos);
 
-    // create the main window and layout
+    // Create main window layout
     QWidget window;
-    QVBoxLayout *top = new QVBoxLayout();
-    window.setLayout(top);
-    window.setWindowTitle("tomeo");
-    window.setMinimumSize(800, 680);
+    QVBoxLayout *topLayout = new QVBoxLayout();
+    topLayout->setContentsMargins(10, 10, 10, 10);
+    topLayout->setSpacing(15);  // Control spacing between widgets
+    window.setLayout(topLayout);
+    window.setWindowTitle("Tomeo - Sports Video Player");
+    window.setMinimumSize(900, 700);
 
+    // Connect slider and player signals
     QObject::connect(slider, &QSlider::valueChanged, player, &ThePlayer::onSliderValueChanged);
     QObject::connect(player, &ThePlayer::updateSliderPosition, slider, &QSlider::setValue);
 
-    // add the video and the buttons to the top level widget
-    top->addWidget(videoWidget);
-    top->addWidget(playPauseButton);
-    top->addWidget(slider);
-    top->addLayout(actionButtonsLayout); // 添加点赞、收藏和赞赏按钮
-    top->addWidget(buttonWidget);
+    // Add video, buttons, and action buttons to layout
+    topLayout->addWidget(videoWidget);
+    topLayout->addWidget(playPauseButton);
+    topLayout->addWidget(slider);
+    topLayout->addLayout(actionButtonsLayout); // Add Like, Favorite, and Reward buttons
+    topLayout->addWidget(buttonWidget);
 
-    // showtime!
+    // Show the window
     window.show();
 
-    // wait for the app to terminate
+    // Wait for the app to terminate
     return app.exec();
 }
+
+
