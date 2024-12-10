@@ -96,23 +96,24 @@ int main(int argc, char *argv[]) {
     QSlider *slider = new QSlider(Qt::Horizontal);
     // 设置滑块的样式表
     slider->setStyleSheet(
-        "QSlider {"
-        "   height: 10px;"
-        "   background: #ccc;" // 背景色
-        "}"
-        "QSlider::groove:horizontal {"
-        "   height: 10px;"
-        "   background: #f0f0f0;"
-        "   border-radius: 5px;"
-        "}"
-        "QSlider::handle:horizontal {"
-        "   background: #0078d7;" // 滑块的颜色
-        "   width: 20px;"
-        "   border-radius: 10px;"
-        "}"
-        "QSlider::handle:horizontal:hover {"
-        "   background: #0056a1;" // 鼠标悬停时颜色
-        "}"
+        "QSlider {"  
+        "   height: 10px;"  
+        "   background: #333;"  
+        "   margin: 0 10px;"  
+        "}"  
+        "QSlider::groove:horizontal {"  
+        "   height: 10px;"  
+        "   background: #444;"  
+        "   border-radius: 5px;"  
+        "}"  
+        "QSlider::handle:horizontal {"  
+        "   background: #0078d7;"  
+        "   width: 20px;"  
+        "   border-radius: 10px;"  
+        "}"  
+        "QSlider::handle:horizontal:hover {"  
+        "   background: #0056a1;"  
+        "}" 
         );
     slider->setRange(0, 100);
     slider->setValue(0);
@@ -165,19 +166,15 @@ int main(int argc, char *argv[]) {
     QPushButton *playPauseButton = new QPushButton("Play/Pause");
     QObject::connect(playPauseButton, &QPushButton::clicked, player, &ThePlayer::togglePlayPause);
     playPauseButton->setStyleSheet(
-        "QPushButton {"
-        "background-color: #4CAF50;" // 绿色背景
-        "color: white;" // 白色字体
-        "border: none;" // 不显示边框
-        "padding: 15px 32px;" // 按钮的内边距
-        "text-align: center;" // 文字居中
-        "text-decoration: none;" // 不加下划线
-        "font-size: 16px;" // 字体大小
-        "margin: 4px 2px;" // 外边距
-        "border-radius: 8px;" // 圆角
-        "} "
-        "QPushButton:hover {"
-        "background-color: #45a049;" // 鼠标悬停时的背景颜色
+        "QPushButton {"  
+        "   background-color: #4CAF50;"  
+        "   color: white;"  
+        "   border: none;"  
+        "   padding: 10px 20px;"  
+        "   border-radius: 8px;"  
+        "}"  
+        "QPushButton:hover {"  
+        "   background-color: #45a049;"  
         "}"
         );
     // a row of buttons
@@ -185,7 +182,7 @@ int main(int argc, char *argv[]) {
     // a list of the buttons
     std::vector<TheButton*> buttons;
     // the buttons are arranged horizontally
-    QHBoxLayout *layout = new QHBoxLayout();
+    QVBoxLayout *layout = new QVBoxLayout();
     buttonWidget->setLayout(layout);
 
 
@@ -194,7 +191,7 @@ int main(int argc, char *argv[]) {
         TheButton *button = new TheButton(buttonWidget);
         button->connect(button, SIGNAL(jumpTo(TheButtonInfo* )), player, SLOT (jumpTo(TheButtonInfo*))); // when clicked, tell the player to play.
         buttons.push_back(button);
-        layout->addWidget(button);
+        layout->addWidget(button); // 将按钮添加到垂直布局中
         button->init(&videos.at(i));
     }
 
@@ -207,16 +204,22 @@ int main(int argc, char *argv[]) {
     window.setLayout(top);
     window.setWindowTitle("tomeo");
     window.setMinimumSize(800, 680);
+    // 设置整个应用的背景为黑色  
+    window.setStyleSheet("background-color: black; color: white;");
+
+    // Create a horizontal layout to hold the video widget and button widget  
+    QHBoxLayout *mainLayout = new QHBoxLayout();    
+    mainLayout->addWidget(buttonWidget); // Add button widget to the layout 
+    mainLayout->addWidget(videoWidget);
 
     QObject::connect(slider, &QSlider::valueChanged, player, &ThePlayer::onSliderValueChanged);
     QObject::connect(player, &ThePlayer::updateSliderPosition, slider, &QSlider::setValue);
 
     // add the video and the buttons to the top level widget
-    top->addWidget(videoWidget);
+    top->addLayout(mainLayout);
     top->addWidget(playPauseButton);
     top->addWidget(slider);
     top->addLayout(actionButtonsLayout); // 添加点赞、收藏和赞赏按钮
-    top->addWidget(buttonWidget);
 
     // showtime!
     window.show();

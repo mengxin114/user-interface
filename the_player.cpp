@@ -45,7 +45,11 @@ void ThePlayer::updateSlider() {
 
 void ThePlayer::onTimeout() {
     updateSlider(); // 每次超时都更新进度条
-
+    count++;
+    if (count >= 10) {  // 如果计数器达到10  
+            shuffle();      // 调用 shuffle 方法  
+            count = 0;     // 重置计数器  
+    } 
 }
 
 // 新增的槽函数，用于处理进度条的拖动事件

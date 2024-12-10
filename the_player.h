@@ -26,6 +26,7 @@ private:
     QSlider* slider; // 使用指针接收外部的 slider
     bool isSliderBeingDragged; // 用于指示进度条是否正在被拖动
     bool isPlaying = false;
+    int count;
 
 public:
     ThePlayer(QSlider* slider) : QMediaPlayer(NULL), slider(slider), isSliderBeingDragged(false) {
@@ -35,7 +36,7 @@ public:
         mTimer = new QTimer(this);
         mTimer->setInterval(100); // 100ms is 1/10 of one second between ...
         mTimer->start();
-        connect( mTimer, SIGNAL (timeout()), SLOT ( shuffle() ) ); // ...running shuffle method
+
         connect(mTimer, &QTimer::timeout, this, &ThePlayer::onTimeout); // 将定时器的超时信号连接到槽
         connect(slider, &QSlider::sliderPressed, this, [this]() {
             isSliderBeingDragged = true; // 标记进度条正在被拖动
