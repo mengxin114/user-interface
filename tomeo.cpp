@@ -69,34 +69,6 @@ std::vector<TheButtonInfo> getInfoIn(std::string loc) {
   return out;
 }
 
-class ResponsiveWindow : public QWidget {
-  Q_OBJECT
-
-public:
-  ResponsiveWindow(QWidget *buttonWidget, QVBoxLayout *mainContentLayout)
-      : buttonWidget(buttonWidget), mainContentLayout(mainContentLayout) {
-    setWindowTitle("Tomeo");
-    setMinimumSize(800, 600);
-    setStyleSheet("background-color: black; color: white;");
-  }
-
-protected:
-  void resizeEvent(QResizeEvent *event) override {
-    QWidget::resizeEvent(event);
-
-    // 判断窗口宽高比例，当宽度小于高度时隐藏 Sidebar
-    if (width() < height() * 0.8) { // 窗口接近手机比例时
-      buttonWidget->hide();         // 隐藏 Sidebar
-    } else {
-      buttonWidget->show(); // 显示 Sidebar
-    }
-  }
-
-private:
-  QWidget *buttonWidget;          // Sidebar 控件
-  QVBoxLayout *mainContentLayout; // 主内容区域布局
-};
-
 int main(int argc, char *argv[]) {
 
   // let's just check that Qt is operational first
@@ -124,10 +96,9 @@ int main(int argc, char *argv[]) {
   QVideoWidget *videoWidget = new QVideoWidget;
   videoWidget->setStyleSheet("QVideoWidget {"
                              "   background-color: black;" // 播放区域背景色
-                             "   border: 2px solid #444444;"        // 边框
-                             "   border-radius: 10px;"              // 圆角
-                             "   margin: 10px;"                     // 外边距
-                             "   box-shadow: 0px 0px 10px #000000;" // 阴影效果
+                             "   border: 2px solid #444444;" // 边框
+                             "   border-radius: 10px;"       // 圆角
+                             "   margin: 10px;"              // 外边距
                              "}");
 
   // create the QSlider
@@ -211,26 +182,26 @@ int main(int argc, char *argv[]) {
   videoAndVolumeLayout->addSpacing(20); // 增加音量滑块和窗口边缘的间距
 
   // 创建点赞、收藏和赞赏按钮
-  QPushButton *likeButton = new QPushButton("❤️ Like");
-  QPushButton *favoriteButton = new QPushButton("⭐ Favorite");
-  QPushButton *rewardButton = new QPushButton("💰 Reward");
+  QPushButton *likeButton = new QPushButton("❤️");
+  QPushButton *favoriteButton = new QPushButton("⭐");
+  QPushButton *rewardButton = new QPushButton("🪙");
 
   // 点赞功能
   QObject::connect(likeButton, &QPushButton::clicked, [&]() {
     static int likeCount = 0;
     likeCount++;
-    QMessageBox::information(nullptr, "点赞成功",
-                             QString("当前点赞数：%1").arg(likeCount));
+    QMessageBox::information(nullptr, "Message",
+                             QString("Liked by：%1").arg(likeCount));
   });
 
   // 收藏功能
   QObject::connect(favoriteButton, &QPushButton::clicked, [&]() {
-    QMessageBox::information(nullptr, "收藏成功", "已将该视频加入收藏列表！");
+    QMessageBox::information(nullptr, "Message", "Success!");
   });
 
   // 赞赏功能
   QObject::connect(rewardButton, &QPushButton::clicked, [&]() {
-    QMessageBox::information(nullptr, "赞赏成功", "感谢您的支持！");
+    QMessageBox::information(nullptr, "Message", "Sucess！");
   });
 
   // 设置按钮样式
@@ -258,6 +229,42 @@ int main(int argc, char *argv[]) {
   QPushButton *playPauseButton = new QPushButton("Play/Pause");
   QObject::connect(playPauseButton, &QPushButton::clicked, player,
                    &ThePlayer::togglePlayPause);
+  // 快进和快退按钮
+  QPushButton *rewindButton = new QPushButton("<<");
+  QPushButton *fastForwardButton = new QPushButton(">>");
+  QObject::connect(rewindButton, &QPushButton::clicked, [&]() {
+    qint64 currentPosition = player->position(); // 当前播放位置
+    qint64 newPosition =
+        std::max(currentPosition - 5000, qint64(0)); // 快退 5 秒
+    player->setPosition(newPosition);                // 设置播放位置
+  });
+
+  QObject::connect(fastForwardButton, &QPushButton::clicked, [&]() {
+    qint64 currentPosition = player->position(); // 当前播放位置
+    qint64 newPosition =
+        std::min(currentPosition + 5000, player->duration()); // 快进 5 秒
+    player->setPosition(newPosition); // 设置播放位置
+  });
+
+  // 设置快进和快退按钮样式
+  rewindButton->setStyleSheet(
+      "QPushButton { font-size: 16px; color: white; background-color: #555; "
+      "border-radius: 5px; padding: 10px; margin: 5px; }"
+      "QPushButton:hover { background-color: #777; }"
+      "QPushButton:pressed { background-color: #333; }");
+
+  fastForwardButton->setStyleSheet(
+      "QPushButton { font-size: 16px; color: white; background-color: #555; "
+      "border-radius: 5px; padding: 10px; margin: 5px; }"
+      "QPushButton:hover { background-color: #777; }"
+      "QPushButton:pressed { background-color: #333; }");
+
+  // 将快进、快退和播放/暂停按钮放入水平布局
+  QHBoxLayout *controlButtonsLayout = new QHBoxLayout();
+  controlButtonsLayout->addWidget(rewindButton);      // 快退按钮
+  controlButtonsLayout->addWidget(playPauseButton);   // 播放/暂停按钮
+  controlButtonsLayout->addWidget(fastForwardButton); // 快进按钮
+
   playPauseButton->setStyleSheet("QPushButton {"
                                  "   background-color: #4CAF50;"
                                  "   color: white;"
@@ -276,7 +283,6 @@ int main(int argc, char *argv[]) {
                               "   border-radius: 10px;"       // 圆角
                               "   padding: 10px;"             // 内边距
                               "   margin: 10px;"              // 外边距
-                              "   box-shadow: 0px 0px 10px #111111;" // 阴影效果
                               "}");
   // a list of the buttons
   std::vector<TheButton *> buttons;
@@ -334,7 +340,7 @@ int main(int argc, char *argv[]) {
 
   // add the video and the buttons to the top level widget
   top->addLayout(videoAndVolumeLayout);
-  top->addWidget(playPauseButton);
+  top->addLayout(controlButtonsLayout); // 替换原来的 playPauseButton 单独添加
   top->addWidget(slider);
   top->addLayout(actionButtonsLayout); // 添加点赞、收藏和赞赏按钮
   // showtime!

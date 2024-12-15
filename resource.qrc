@@ -1,3 +1,6 @@
 <RCC>
-
+    <qresource prefix="icons">
+    <file>./icon/volume-high.png</file>
+    <file>./icon/volume-mute.png</file>
+</qresource>
 </RCC>
