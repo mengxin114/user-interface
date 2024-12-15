@@ -262,6 +262,7 @@ int main(int argc, char *argv[]) {
     top->addWidget(playPauseButton);
     top->addWidget(slider);
     top->addLayout(actionButtonsLayout); // 添加点赞、收藏和赞赏按钮
+    top->addWidget(buttonWidget); // 添加四个按钮
     // showtime!
     window.show();
 
