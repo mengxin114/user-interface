@@ -7,6 +7,7 @@
 
 #include <QPushButton>
 #include <QUrl>
+#include <QToolButton>
 
 class TheButtonInfo {
 
@@ -38,4 +39,33 @@ signals:
 
 };
 
+// 新增 VolumeIconButton 类
+class VolumeIconButton : public QToolButton {
+    Q_OBJECT
+
+public:
+    VolumeIconButton(QWidget* parent = nullptr) : QToolButton(parent) {
+        setIcon(QIcon(":/icons/volume-high.png")); // 设置默认音量图标
+        setStyleSheet(
+            "QToolButton {"
+            "   background: transparent;"
+            "   border: none;"
+            "}"
+            "QToolButton:hover {"
+            "   background: #444;"
+            "}"
+        );
+    }
+
+    void setMuteIcon() {
+        setIcon(QIcon(":/icons/volume-mute.png")); // 设置静音图标
+    }
+
+    void setHighVolumeIcon() {
+        setIcon(QIcon(":/icons/volume-high.png")); // 设置高音量图标
+    }
+
+signals:
+    void muteToggled(bool isMuted); // 信号，用于通知音量状态变化
+};
 #endif //CW2_THE_BUTTON_H

@@ -72,3 +72,7 @@ void ThePlayer::togglePlayPause() {
     }
     isPlaying = !isPlaying;
 }
+
+void ThePlayer::onVolumeChanged(int value) {
+    setVolume(value);
+}

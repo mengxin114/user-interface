@@ -14,4 +14,3 @@ void TheButton::init(TheButtonInfo* i) {
 void TheButton::clicked() {
     emit jumpTo(info);
 }
-//hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh

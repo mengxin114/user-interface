@@ -27,9 +27,10 @@ private:
     bool isSliderBeingDragged; // 用于指示进度条是否正在被拖动
     bool isPlaying = false;
     int count;
+    QSlider* volumeSlider;
 
 public:
-    ThePlayer(QSlider* slider) : QMediaPlayer(NULL), slider(slider), isSliderBeingDragged(false) {
+    ThePlayer(QSlider* slider, QSlider* volumeSlider) : QMediaPlayer(NULL), volumeSlider(volumeSlider), slider(slider), isSliderBeingDragged(false) {
         setVolume(0); // be slightly less annoying
         connect (this, SIGNAL (stateChanged(QMediaPlayer::State)), this, SLOT (playStateChanged(QMediaPlayer::State)) );
 
@@ -45,6 +46,8 @@ public:
         connect(slider, &QSlider::sliderReleased, this, [this]() {
             isSliderBeingDragged = false; // 标记拖动结束
         });
+
+        connect(volumeSlider, &QSlider::valueChanged, this, &ThePlayer::onVolumeChanged);
     }
 
     // all buttons have been setup, store pointers here
@@ -67,6 +70,8 @@ public slots:
     void jumpTo (TheButtonInfo* button);
 
     void togglePlayPause();
+
+    void onVolumeChanged(int value); //更改音量
 };
 
 #endif //CW2_THE_PLAYER_H

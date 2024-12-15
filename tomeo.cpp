@@ -118,6 +118,53 @@ int main(int argc, char *argv[]) {
     slider->setRange(0, 100);
     slider->setValue(0);
 
+    // 创建音量滑块
+    QSlider *volumeSlider = new QSlider(Qt::Vertical);
+    volumeSlider->setRange(0, 100);
+    volumeSlider->setValue(0);
+    // 设置音量滑块的样式表
+    volumeSlider->setStyleSheet(
+        "QSlider {"
+        "   width: 30px;"
+        "   background: transparent;"
+        "}"
+        "QSlider::groove:vertical {"
+        "   width: 5px;"
+        "   background: #444;"
+        "   border-radius: 2px;"
+        "}"
+        "QSlider::handle:vertical {"
+        "   height: 15px;"
+        "   width: 15px;"
+        "   background: #0078d7;"
+        "   border-radius: 7px;"
+        "   margin: 0 -5px;"
+        "}"
+        "QSlider::handle:vertical:hover {"
+        "   background: #0056a1;"
+        "}"
+        "QSlider::add-page:vertical {"
+        "   background: #0078d7;"
+        "   border-radius: 2px;"
+        "}"
+        "QSlider::sub-page:vertical {"
+        "   background: #666;"
+        "   border-radius: 2px;"
+        "}"
+    );
+
+
+    // 创建音量图标按钮
+    VolumeIconButton* volumeIcon = new VolumeIconButton;
+
+    // 创建一个水平布局，用于放置视频控件和音量滑块
+    QHBoxLayout *videoAndVolumeLayout = new QHBoxLayout();
+    videoAndVolumeLayout->addWidget(videoWidget); // 添加视频控件
+    videoAndVolumeLayout->addSpacing(20); // 增加视频控件和音量滑块之间的间距
+    videoAndVolumeLayout->addWidget(volumeSlider); // 添加音量滑块
+    videoAndVolumeLayout->addSpacing(20); // 增加音量滑块和窗口边缘的间距
+
+
     // 创建点赞、收藏和赞赏按钮
     QPushButton *likeButton = new QPushButton("❤️ Like");
     QPushButton *favoriteButton = new QPushButton("⭐ Favorite");
@@ -159,7 +206,7 @@ int main(int argc, char *argv[]) {
     actionButtonsLayout->addWidget(rewardButton);
 
     // the QMediaPlayer which controls the playback
-    ThePlayer *player = new ThePlayer(slider);
+    ThePlayer *player = new ThePlayer(slider, volumeSlider);
     player->setVideoOutput(videoWidget);
 
     // pause and play button
@@ -207,20 +254,14 @@ int main(int argc, char *argv[]) {
     // 设置整个应用的背景为黑色  
     window.setStyleSheet("background-color: black; color: white;");
 
-    // Create a horizontal layout to hold the video widget and button widget  
-    QHBoxLayout *mainLayout = new QHBoxLayout();    
-    mainLayout->addWidget(buttonWidget); // Add button widget to the layout 
-    mainLayout->addWidget(videoWidget);
-
     QObject::connect(slider, &QSlider::valueChanged, player, &ThePlayer::onSliderValueChanged);
     QObject::connect(player, &ThePlayer::updateSliderPosition, slider, &QSlider::setValue);
 
     // add the video and the buttons to the top level widget
-    top->addLayout(mainLayout);
+    top->addLayout(videoAndVolumeLayout);
     top->addWidget(playPauseButton);
     top->addWidget(slider);
     top->addLayout(actionButtonsLayout); // 添加点赞、收藏和赞赏按钮
-
     // showtime!
     window.show();
 
