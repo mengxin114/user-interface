@@ -77,6 +77,15 @@ int main(int argc, char *argv[]) {
   // create the Qt Application
   QApplication app(argc, argv);
 
+  app.setStyleSheet(
+  "QToolTip {"
+  "   color: white;"
+  "   background-color: #333;"
+  "   border: 1px solid #555;"
+  "   padding: 5px;"
+  "   border-radius: 3px;"
+  "}");
+
   // collect all the videos in the folder
   std::vector<TheButtonInfo> videos;
 

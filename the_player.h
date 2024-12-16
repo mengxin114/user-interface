@@ -28,6 +28,7 @@ private:
   bool isPlaying = false;
   int count;
   QSlider *volumeSlider;
+  std::vector<int> unplayedIndices; // 未播放视频的索引列表
 
 public:
   ThePlayer(QSlider *slider, QSlider *volumeSlider)
@@ -38,7 +39,7 @@ public:
             SLOT(playStateChanged(QMediaPlayer::State)));
 
     mTimer = new QTimer(this);
-    mTimer->setInterval(100); // 100ms is 1/10 of one second between ...
+    mTimer->setInterval(50);
     mTimer->start();
 
     connect(mTimer, &QTimer::timeout, this,
@@ -59,6 +60,7 @@ public:
   void setContent(std::vector<TheButton *> *b, std::vector<TheButtonInfo> *i);
 
   void updateSlider();
+  void updateButtons(); // 用于更新按钮的显示内容
 
 private slots:
 

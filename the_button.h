@@ -8,6 +8,8 @@
 #include <QPushButton>
 #include <QUrl>
 #include <QToolButton>
+#include <QDateTime>
+#include <QToolTip>
 
 class TheButtonInfo {
 
@@ -45,7 +47,7 @@ class VolumeIconButton : public QToolButton {
 
 public:
     VolumeIconButton(QWidget* parent = nullptr) : QToolButton(parent) {
-        setIcon(QIcon(":/icons/volume-high.png")); // 设置默认音量图标
+        setIcon(QIcon(":/icon/a/voice.png")); // 设置默认音量图标
         setStyleSheet(
             "QToolButton {"
             "   background: transparent;"
@@ -58,11 +60,11 @@ public:
     }
 
     void setMuteIcon() {
-        setIcon(QIcon(":/icons/volume-mute.png")); // 设置静音图标
+        setIcon(QIcon(":/icon/a/no_voice.png")); // 设置静音图标
     }
 
     void setHighVolumeIcon() {
-        setIcon(QIcon(":/icons/volume-high.png")); // 设置高音量图标
+        setIcon(QIcon(":/icon/a/voice.png")); // 设置高音量图标
     }
 
 signals:
