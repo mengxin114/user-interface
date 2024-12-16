@@ -147,6 +147,10 @@ int main(int argc, char *argv[]) {
   slider->setRange(0, 100);
   slider->setValue(0);
 
+  // 删除原来的音量部分代码
+  // 创建一个新的垂直布局，用于音量滑块和声音图标
+  QVBoxLayout *volumeLayout = new QVBoxLayout();
+
   // 创建音量滑块
   QSlider *volumeSlider = new QSlider(Qt::Vertical);
   volumeSlider->setRange(0, 100);
@@ -180,15 +184,22 @@ int main(int argc, char *argv[]) {
                               "   border-radius: 2px;"
                               "}");
 
-  // 创建音量图标按钮
-  VolumeIconButton *volumeIcon = new VolumeIconButton;
+  // 创建声音图标按钮
+  VolumeIconButton *volumeIcon = new VolumeIconButton();
+  volumeIcon->setHighVolumeIcon(); // 初始设置为高音量图标
 
-  // 创建一个水平布局，用于放置视频控件和音量滑块
+  // 将音量滑块和图标添加到垂直布局中
+  volumeLayout->addWidget(volumeSlider);
+  volumeLayout->addWidget(volumeIcon);
+  volumeLayout->setAlignment(volumeIcon, Qt::AlignCenter); // 图标居中显示
+
+  // 创建一个水平布局，用于放置视频控件和音量部分
   QHBoxLayout *videoAndVolumeLayout = new QHBoxLayout();
   videoAndVolumeLayout->addWidget(videoWidget); // 添加视频控件
-  videoAndVolumeLayout->addSpacing(20); // 增加视频控件和音量滑块之间的间距
-  videoAndVolumeLayout->addWidget(volumeSlider); // 添加音量滑块
-  videoAndVolumeLayout->addSpacing(20); // 增加音量滑块和窗口边缘的间距
+  videoAndVolumeLayout->addSpacing(20);         // 增加间距
+  videoAndVolumeLayout->addLayout(volumeLayout); // 添加新的垂直布局
+  videoAndVolumeLayout->addSpacing(20);          // 增加间距
+
 
   // 创建点赞、收藏和赞赏按钮
   QPushButton *likeButton = new QPushButton("❤️");
@@ -331,29 +342,60 @@ int main(int argc, char *argv[]) {
 
   // create the main window and layout
   QWidget window;
+  window.setStyleSheet("background-color: #D3D3D3; color: #333333;"); // 设置背景颜色为米色
   QHBoxLayout *mainLayout = new QHBoxLayout(); // 使用水平布局
   QVBoxLayout *top = new QVBoxLayout();        // 主内容区的垂直布局
+
   mainLayout->addWidget(buttonWidget, 1); // 左侧添加按钮区域，占1份空间
-  mainLayout->addLayout(top, 3); // 右侧添加主内容区，占3份空间
-  window.setLayout(mainLayout);  // 设置窗口的主布局
+  mainLayout->addLayout(top, 3);          // 右侧添加主内容区，占3份空间
+
+  // 创建一个新的容器 QWidget 和布局 QVBoxLayout
+  QWidget *containerWidget = new QWidget();
+  QVBoxLayout *containerLayout = new QVBoxLayout(); // 包含所有子布局的垂直布局
+
+  // 添加点赞、收藏和赞赏按钮布局
+  containerLayout->addLayout(actionButtonsLayout);
+
+  // 添加视频和音量控件的布局
+  containerLayout->addLayout(videoAndVolumeLayout);
+
+  // 添加播放、快进、快退按钮布局
+  containerLayout->addLayout(controlButtonsLayout);
+
+  // 添加进度条
+  containerLayout->addWidget(slider);
+
+  // 将布局设置到新的容器
+  containerWidget->setLayout(containerLayout);
+
+  // 设置容器样式（可选）
+  containerWidget->setStyleSheet("QWidget {"
+                                 "   background-color: #222222;"
+                                 "   border: 2px solid #444;"
+                                 "   border-radius: 10px;"
+                                 "   padding: 10px;"
+                                 "}");
+
+  // 将新容器添加到主布局 top
+  top->addWidget(containerWidget);
+
+  window.setLayout(mainLayout); // 设置窗口的主布局
 
   window.setWindowTitle("tomeo");
   window.setMinimumSize(800, 680);
+
   // 设置整个应用的背景为黑色
   window.setStyleSheet("background-color: black; color: white;");
 
+  // 连接进度条和播放器的信号与槽
   QObject::connect(slider, &QSlider::valueChanged, player,
                    &ThePlayer::onSliderValueChanged);
   QObject::connect(player, &ThePlayer::updateSliderPosition, slider,
                    &QSlider::setValue);
 
-  // add the video and the buttons to the top level widget
-  top->addLayout(videoAndVolumeLayout);
-  top->addLayout(controlButtonsLayout); // 替换原来的 playPauseButton 单独添加
-  top->addWidget(slider);
-  top->addLayout(actionButtonsLayout); // 添加点赞、收藏和赞赏按钮
   // showtime!
   window.show();
+
 
   // wait for the app to terminate
   return app.exec();
