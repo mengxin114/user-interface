@@ -49,31 +49,13 @@ signals:
 // 新增 VolumeIconButton 类
 class VolumeIconButton : public QToolButton {
     Q_OBJECT
-
-    QIcon createColoredIcon(const QString& path, const QColor& color) {
-        QPixmap pixmap(path); // 加载原始单色图标
-        QPixmap coloredPixmap(pixmap.size());
-        coloredPixmap.fill(Qt::transparent);
-
-        QPainter painter(&coloredPixmap);
-        painter.setCompositionMode(QPainter::CompositionMode_Source);
-        painter.drawPixmap(0, 0, pixmap);
-
-        // 使用指定颜色填充图标
-        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-        painter.fillRect(coloredPixmap.rect(), color);
-        painter.end();
-
-        return QIcon(coloredPixmap);
-    }
-
-
 public:
-    VolumeIconButton(QWidget* parent = nullptr) : QToolButton(parent) {
-        QIcon coloredIcon = createColoredIcon(":/icon/a/voice.png", QColor("#00A8FF")); // 修改颜色为亮蓝色
-        setIcon(coloredIcon);
+    explicit VolumeIconButton(QWidget* parent = nullptr) : QToolButton(parent), isMuted(true) {
+        // 初始化为静音图标（默认音量为零）
+        setMuteIcon();
         setIconSize(QSize(40, 40));
 
+        // 设置按钮样式
         setStyleSheet(
             "QToolButton {"
             "   background: rgba(255, 255, 255, 0.3);"
@@ -84,18 +66,41 @@ public:
             "   background: rgba(255, 255, 255, 0.5);"
             "} "
         );
+
+        // 连接按钮点击事件到静音切换槽
+        connect(this, &QToolButton::clicked, this, &VolumeIconButton::toggleMute);
+
+        // 添加额外的信号槽，用于同步静音状态到播放器
+        connect(this, &VolumeIconButton::muteToggled, this, [this](bool isMuted) {
+            if (isMuted) {
+                setMuteIcon(); // 设置静音图标
+            } else {
+                setHighVolumeIcon(); // 设置高音量图标
+            }
+        });
     }
 
-
+    // 设置静音图标
     void setMuteIcon() {
-        setIcon(QIcon(":/icon/a/no_voice.png")); // 设置静音图标
+        setIcon(QIcon(":/icon/a/no_voice.png"));
     }
 
+    // 设置高音量图标
     void setHighVolumeIcon() {
-        setIcon(QIcon(":/icon/a/voice.png")); // 设置高音量图标
+        setIcon(QIcon(":/icon/a/voice.png"));
+    }
+
+    // 切换静音状态
+    void toggleMute() {
+        isMuted = !isMuted; // 切换静音状态
+        emit muteToggled(isMuted); // 发射静音信号
     }
 
 signals:
-    void muteToggled(bool isMuted); // 信号，用于通知音量状态变化
+    void muteToggled(bool isMuted); // 信号，用于通知静音状态变化
+
+private:
+    bool isMuted; // 记录当前是否静音
 };
+
 #endif //CW2_THE_BUTTON_H

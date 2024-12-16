@@ -245,6 +245,9 @@ int main(int argc, char *argv[]) {
   ThePlayer *player = new ThePlayer(slider, volumeSlider);
   player->setVideoOutput(videoWidget);
 
+  // 连接音量按钮的信号与播放器的槽函数
+  QObject::connect(volumeIcon, &VolumeIconButton::muteToggled, player, &ThePlayer::setMute);
+
   // pause and play button
   QPushButton *playPauseButton = new QPushButton("Play/Pause");
   QObject::connect(playPauseButton, &QPushButton::clicked, player,
