@@ -119,13 +119,13 @@ void ThePlayer::onSliderValueChanged(int value) {
 
 // 切换播放和暂停
 void ThePlayer::togglePlayPause() {
-    if (isPlaying) {
-        pause();
+    if (state() == QMediaPlayer::PlayingState) {
+        pause(); // 如果播放器正在播放，则暂停
     } else {
-        play();
+        play();  // 如果播放器已暂停或停止，则开始播放
     }
-    isPlaying = !isPlaying;
 }
+
 
 // 音量变化处理
 void ThePlayer::onVolumeChanged(int value) {
