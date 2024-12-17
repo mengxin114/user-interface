@@ -249,7 +249,7 @@ int main(int argc, char *argv[]) {
   QObject::connect(volumeIcon, &VolumeIconButton::muteToggled, player, &ThePlayer::setMute);
 
   // pause and play button
-  QPushButton *playPauseButton = new QPushButton("Play/Pause");
+  QPushButton *playPauseButton = new QPushButton("pause/play");
   QObject::connect(playPauseButton, &QPushButton::clicked, player,
                    &ThePlayer::togglePlayPause);
   // 快进和快退按钮
@@ -269,35 +269,67 @@ int main(int argc, char *argv[]) {
     player->setPosition(newPosition); // 设置播放位置
   });
 
+
+  playPauseButton->setStyleSheet(
+              "QPushButton {"
+              "   width: 60px;" // 宽度设置为 60px
+              "   height: 30px;" // 高度设置为 30px
+              "   background-color: #4CAF50;" // 按钮背景颜色
+              "   color: white;" // 按钮文字颜色
+              "   border: none;" // 去掉边框
+              "   border-radius: 15px;" // 圆角设置为半径，形成正方形按钮
+              "} "
+              "QPushButton:hover {"
+              "   background-color: #45a049;" // 鼠标悬停时按钮颜色
+              "} "
+              "QPushButton:pressed {"
+              "   background-color: #388E3C;" // 按下时按钮颜色
+              "}"
+          );
+
   // 设置快进和快退按钮样式
   rewindButton->setStyleSheet(
-      "QPushButton { font-size: 16px; color: white; background-color: #555; "
-      "border-radius: 5px; padding: 10px; margin: 5px; }"
-      "QPushButton:hover { background-color: #777; }"
-      "QPushButton:pressed { background-color: #333; }");
+              "QPushButton {"
+              "   width: 40px;" // 宽度设置为 40px
+              "   height: 30px;" // 高度设置为 30px
+              "   background-color: #555;" // 按钮背景颜色
+              "   color: white;" // 按钮文字颜色
+              "   border: none;" // 去掉边框
+              "   border-radius: 15px;" // 圆角设置为半径，形成正方形按钮
+              "} "
+              "QPushButton:hover {"
+              "   background-color: #777;" // 鼠标悬停时按钮颜色
+              "} "
+              "QPushButton:pressed {"
+              "   background-color: #333;" // 按下时按钮颜色
+              "}"
+          );
 
   fastForwardButton->setStyleSheet(
-      "QPushButton { font-size: 16px; color: white; background-color: #555; "
-      "border-radius: 5px; padding: 10px; margin: 5px; }"
-      "QPushButton:hover { background-color: #777; }"
-      "QPushButton:pressed { background-color: #333; }");
+              "QPushButton {"
+              "   width: 40px;" // 宽度设置为 40px
+              "   height: 30px;" // 高度设置为 30px
+              "   background-color: #555;" // 按钮背景颜色
+              "   color: white;" // 按钮文字颜色
+              "   border: none;" // 去掉边框
+              "   border-radius: 15px;" // 圆角设置为半径，形成正方形按钮
+              "} "
+              "QPushButton:hover {"
+              "   background-color: #777;" // 鼠标悬停时按钮颜色
+              "} "
+              "QPushButton:pressed {"
+              "   background-color: #333;" // 按下时按钮颜色
+              "}"
+          );
 
-  // 将快进、快退和播放/暂停按钮放入水平布局
+  // 创建一个水平布局，用于播放、快进、快退按钮
   QHBoxLayout *controlButtonsLayout = new QHBoxLayout();
+  controlButtonsLayout->setSpacing(20); // 按钮间距
+  controlButtonsLayout->setAlignment(Qt::AlignCenter); // 居中对齐
   controlButtonsLayout->addWidget(rewindButton);      // 快退按钮
   controlButtonsLayout->addWidget(playPauseButton);   // 播放/暂停按钮
   controlButtonsLayout->addWidget(fastForwardButton); // 快进按钮
 
-  playPauseButton->setStyleSheet("QPushButton {"
-                                 "   background-color: #4CAF50;"
-                                 "   color: white;"
-                                 "   border: none;"
-                                 "   padding: 10px 20px;"
-                                 "   border-radius: 8px;"
-                                 "}"
-                                 "QPushButton:hover {"
-                                 "   background-color: #45a049;"
-                                 "}");
   // a row of buttons
   QWidget *buttonWidget = new QWidget();
   buttonWidget->setStyleSheet("QWidget {"
@@ -370,6 +402,8 @@ int main(int argc, char *argv[]) {
 
   // 将布局设置到新的容器
   containerWidget->setLayout(containerLayout);
+
+  videoAndVolumeLayout->addLayout(controlButtonsLayout);
 
   // 设置容器样式（可选）
   containerWidget->setStyleSheet("QWidget {"
