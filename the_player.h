@@ -13,7 +13,6 @@
 #include <QTimer>
 #include <vector>
 
-
 class ThePlayer : public QMediaPlayer {
 
   Q_OBJECT
@@ -27,37 +26,43 @@ private:
   bool isSliderBeingDragged; // 用于指示进度条是否正在被拖动
   bool isPlaying = false;
   int count;
-  QSlider *volumeSlider;
+  QSlider *volumeSlider;     // 音量滑块指针
   std::vector<int> unplayedIndices; // 未播放视频的索引列表
   int currentVideoIndex = 0; // 当前播放的视频索引
+
+private:
+    int previousVolume = 50; // 记录静音前的音量，默认为 50
 
 public:
   ThePlayer(QSlider *slider, QSlider *volumeSlider)
       : QMediaPlayer(NULL), volumeSlider(volumeSlider), slider(slider),
         isSliderBeingDragged(false) {
-    setVolume(0); // be slightly less annoying
+    setVolume(0); // 初始音量为 0，避免突然的声音
+
+    // 播放状态改变信号连接到槽函数
     connect(this, SIGNAL(stateChanged(QMediaPlayer::State)), this,
             SLOT(playStateChanged(QMediaPlayer::State)));
 
+    // 定时器，用于更新界面
     mTimer = new QTimer(this);
     mTimer->setInterval(50);
     mTimer->start();
 
-    connect(mTimer, &QTimer::timeout, this,
-            &ThePlayer::onTimeout); // 将定时器的超时信号连接到槽
+    connect(mTimer, &QTimer::timeout, this, &ThePlayer::onTimeout);
+
+    // 进度条事件
     connect(slider, &QSlider::sliderPressed, this, [this]() {
-      isSliderBeingDragged = true; // 标记进度条正在被拖动
+      isSliderBeingDragged = true;
     });
-
     connect(slider, &QSlider::sliderReleased, this, [this]() {
-      isSliderBeingDragged = false; // 标记拖动结束
+      isSliderBeingDragged = false;
     });
 
-    connect(volumeSlider, &QSlider::valueChanged, this,
-            &ThePlayer::onVolumeChanged);
+    // 音量滑块的改变事件
+    connect(volumeSlider, &QSlider::valueChanged, this, &ThePlayer::onVolumeChanged);
   }
 
-  // all buttons have been setup, store pointers here
+  // 设置按钮和视频内容
   void setContent(std::vector<TheButton *> *b, std::vector<TheButtonInfo> *i);
 
   void updateSlider();
@@ -65,21 +70,22 @@ public:
 
 private slots:
 
-  // change the image and video for one button every one second
+  // 随机播放视频
   void shuffle();
-  void onTimeout(); // 新增的槽，用于更新进度条
+  void onTimeout(); // 更新进度条
   void playStateChanged(QMediaPlayer::State ms);
+
 signals:
-  void progressUpdated(int value); // 定义信号
+  void progressUpdated(int value); // 进度更新信号
   void updateSliderPosition(int value);
+
 public slots:
-  void onSliderValueChanged(int value);
-  // start playing this ButtonInfo
-  void jumpTo(TheButtonInfo *button);
+  void onSliderValueChanged(int value); // 滑块值变化事件
+  void jumpTo(TheButtonInfo *button);  // 播放指定视频
+  void togglePlayPause();              // 切换播放和暂停
+  void onVolumeChanged(int value);     // 音量更改
+  void setMute(bool isMuted);          // 设置静音或取消静音
 
-  void togglePlayPause();
-
-  void onVolumeChanged(int value); // 更改音量
 };
 
 #endif // CW2_THE_PLAYER_H
