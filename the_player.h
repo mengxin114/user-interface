@@ -28,6 +28,7 @@ private:
   int count;
   QSlider *volumeSlider;     // 音量滑块指针
   std::vector<int> unplayedIndices; // 未播放视频的索引列表
+  int currentVideoIndex = 0; // 当前播放的视频索引
 
 private:
     int previousVolume = 50; // 记录静音前的音量，默认为 50
