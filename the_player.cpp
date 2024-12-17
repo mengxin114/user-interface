@@ -8,22 +8,40 @@
 void ThePlayer::setContent(std::vector<TheButton*>* b, std::vector<TheButtonInfo>* i) {
     buttons = b;
     infos = i;
-    jumpTo(buttons->at(0)->info);
 
-    // 初始化未播放视频的索引列表
+    // 初始化未播放列表
     unplayedIndices.clear();
     for (int index = 0; index < infos->size(); ++index) {
         unplayedIndices.push_back(index);
     }
-    std::random_shuffle(unplayedIndices.begin(), unplayedIndices.end()); // 随机打乱索引
+    std::random_shuffle(unplayedIndices.begin(), unplayedIndices.end());
+
+    // 播放第一个视频
+    jumpTo(buttons->at(0)->info);
 }
 
 // 随机选择并播放未播放的视频
 void ThePlayer::shuffle() {
-    TheButtonInfo* i = & infos -> at (rand() % infos->size() );
-//        setMedia(*i->url);
-    buttons -> at( updateCount++ % buttons->size() ) -> init( i );
+    static std::vector<int> playedIndices;
+
+    // 重置播放列表
+    if (playedIndices.size() >= infos->size()) {
+        playedIndices.clear();
+    }
+
+    int nextIndex;
+    do {
+        nextIndex = rand() % infos->size();
+    } while (std::find(playedIndices.begin(), playedIndices.end(), nextIndex) != playedIndices.end());
+
+    playedIndices.push_back(nextIndex);
+
+    // 播放新视频
+    TheButtonInfo* nextVideo = &infos->at(nextIndex);
+    jumpTo(nextVideo);
 }
+
+
 
 // 播放状态改变事件
 void ThePlayer::playStateChanged(QMediaPlayer::State ms) {
@@ -47,11 +65,12 @@ void ThePlayer::playStateChanged(QMediaPlayer::State ms) {
 // 跳转到指定的视频
 void ThePlayer::jumpTo(TheButtonInfo* button) {
     setMedia(*button->url); // 设置新的视频文件
-    play();                 // 播放新视频
+    play();                 // 开始播放
 
-    // 发出状态改变信号，让按钮同步到正确的状态
+    // 发出状态信号，更新播放按钮图标
     emit stateChanged(QMediaPlayer::PlayingState);
 }
+
 
 
 // 更新进度条
@@ -72,15 +91,24 @@ void ThePlayer::updateSlider() {
 
 // 定时器超时处理
 void ThePlayer::onTimeout() {
-    if (!isSliderBeingDragged) { // 如果进度条没有被拖动
-        updateSlider(); // 更新进度条
+    if (!isSliderBeingDragged) {
+        updateSlider();
     }
-    if (count >= 10) {  // 如果计数器达到10  
-            shuffle();      // 调用 shuffle 方法  
-            count = 0;     // 重置计数器  
+
+    // 视频播放结束后自动切换
+    if (state() == QMediaPlayer::StoppedState) {
+        shuffle();
     }
-    count++;
+
+    // 定时刷新侧边栏按钮
+    static int buttonRefreshCounter = 0;
+    if (++buttonRefreshCounter >= 80) { // 每 10 秒刷新一次
+        updateButtons();
+        buttonRefreshCounter = 0;
+    }
 }
+
+
 
 // 进度条拖动事件处理
 void ThePlayer::onSliderValueChanged(int value) {
@@ -151,28 +179,20 @@ void ThePlayer::setMute(bool isMuted) {
 void ThePlayer::updateButtons() {
     if (buttons->size() < 4 || infos->size() < 4) return;
 
-    // 确保索引列表中有足够的视频来选择
-    if (unplayedIndices.size() < 4) {
-        // 如果未使用视频索引不足，重新填充并打乱
-        unplayedIndices.clear();
-        for (int index = 0; index < infos->size(); ++index) {
-            unplayedIndices.push_back(index);
-        }
-        std::random_shuffle(unplayedIndices.begin(), unplayedIndices.end());
-    }
-
-    // 从未使用的视频索引列表中选择前4个
-    std::vector<int> selectedIndices;
-    for (int i = 0; i < 4; ++i) {
-        selectedIndices.push_back(unplayedIndices.back());
-        unplayedIndices.pop_back(); // 从未使用列表中移除已选索引
+    // 随机生成 4 个唯一索引
+    std::set<int> uniqueIndices;
+    while (uniqueIndices.size() < 4) {
+        uniqueIndices.insert(rand() % infos->size());
     }
 
     // 更新按钮内容
-    for (int i = 0; i < 4; ++i) {
-        TheButton* button = buttons->at(i);
-        TheButtonInfo* info = &infos->at(selectedIndices[i]);
-        button->init(info); // 重新初始化按钮内容
+    int i = 0;
+    for (int index : uniqueIndices) {
+        TheButton* button = buttons->at(i++);
+        TheButtonInfo* info = &infos->at(index);
+        button->init(info);
     }
 }
+
+
 

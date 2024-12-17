@@ -513,48 +513,45 @@ int main(int argc, char *argv[]) {
   QObject::connect(player, &ThePlayer::updateSliderPosition, slider,
                    &QSlider::setValue);
    // 连接全屏切换按钮的点击事件
-QObject::connect(fullscreenButton, &QPushButton::clicked, [&]() {
-    if (fullscreenWindow) {
-        // 如果全屏窗口已经存在，则退出全屏
-        fullscreenWindow->close(); // 关闭全屏窗口
+  // 退出全屏的逻辑
+  QObject::connect(fullscreenButton, &QPushButton::clicked, [&]() {
+      if (fullscreenWindow) {
+          // 如果全屏窗口已经存在，则退出全屏
+          fullscreenWindow->close();
+          fullscreenWindow = nullptr;
 
-        fullscreenWindow = nullptr;
+          // 检查是否已添加，避免重复添加
+          if (videoAndVolumeLayout->indexOf(videoWidget) == -1) {
+              videoAndVolumeLayout->insertWidget(0, videoWidget);
+          }
+          if (videoAndVolumeLayout->indexOf(volumeLayout) == -1) {
+              videoAndVolumeLayout->addLayout(volumeLayout);
+          }
 
-        videoAndVolumeLayout->addWidget(videoWidget); // 添加视频控件
-        videoAndVolumeLayout->addSpacing(20);         // 增加间距
-        videoAndVolumeLayout->addLayout(volumeLayout); // 添加新的垂直布局
-        videoAndVolumeLayout->addSpacing(20);          // 增加间距
-        // 将视频控件重新添加到主窗口的布局中
+          // 重新显示主窗口
+          fullscreenLayout->addWidget(fullscreenButton);
+          window.show();
+          fullscreenButton->setText("Fullscreen");
 
-        fullscreenLayout->addWidget(fullscreenButton);
-        // 重新显示主窗口
-        window.show();
-        fullscreenButton->setText("Fullscreen");
+          videoWidget->show();
+          videoWidget->setFocus();
+      } else {
+          // 进入全屏
+          fullscreenWindow = new QWidget();
+          fullscreenWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+          fullscreenWindow->setGeometry(QApplication::desktop()->screenGeometry());
 
-        // 确保视频控件在主窗口中正确显示
-        videoWidget->show();
-        videoWidget->setFocus();
-    } else {
-        // 进入全屏
-        fullscreenWindow = new QWidget();
-        fullscreenWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-        fullscreenWindow->setGeometry(QApplication::desktop()->screenGeometry());
+          QVBoxLayout *layout = new QVBoxLayout(fullscreenWindow);
+          layout->addWidget(videoWidget); // 添加视频控件到全屏
+          layout->addWidget(fullscreenButton);
+          fullscreenWindow->setLayout(layout);
 
-        // 设置全屏窗口的样式
-        fullscreenWindow->setStyleSheet("background-color: black;");
+          fullscreenWindow->showFullScreen();
+          window.hide();
+          fullscreenButton->setText("Exit Fullscreen");
+      }
+  });
 
-        // 创建布局
-        QVBoxLayout *layout = new QVBoxLayout(fullscreenWindow);
-        layout->addWidget(videoWidget); // 将视频控件添加到全屏窗口
-        layout->addWidget(fullscreenButton);
-        fullscreenWindow->setLayout(layout);
-
-        // 显示全屏窗口
-        fullscreenWindow->showFullScreen();
-        window.hide(); // 隐藏主窗口
-        fullscreenButton->setText("Exit Fullscreen");
-    }
-});
 
   // showtime!
   window.show();

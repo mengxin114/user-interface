@@ -13,6 +13,8 @@
 #include <QTimer>
 #include <vector>
 #include <QKeyEvent>
+#include <set>
+
 
 class ThePlayer : public QMediaPlayer {
 
