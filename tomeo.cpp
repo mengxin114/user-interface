@@ -424,6 +424,33 @@ int main(int argc, char *argv[]) {
   QVBoxLayout *layout = new QVBoxLayout();
   buttonWidget->setLayout(layout);
 
+  // 新增一个按钮，用于切换左侧按钮区域的显示与隐藏
+  QPushButton *toggleButton = new QPushButton("Hide Left Panel");
+  toggleButton->setStyleSheet("QPushButton {"
+                              "   background-color: #4CAF50;"
+                              "   color: white;"
+                              "   border: none;"
+                              "   padding: 10px 20px;"
+                              "   border-radius: 8px;"
+                              "}"
+                              "QPushButton:hover {"
+                              "   background-color: #45a049;"
+                              "}");
+
+  // 连接按钮的点击事件
+  QObject::connect(toggleButton, &QPushButton::clicked, [&]() {
+      if (buttonWidget->isVisible()) {
+          // 如果左侧按钮区域当前可见，则隐藏它
+          buttonWidget->hide();
+          toggleButton->setText("Show Left Panel");
+      } else {
+          // 如果左侧按钮区域当前隐藏，则显示它
+          buttonWidget->show();
+          toggleButton->setText("Hide Left Panel");
+      }
+  });
+
+
   // create the four buttons
   for (int i = 0; i < 4; i++) {
     TheButton *button = new TheButton(buttonWidget);
@@ -463,7 +490,7 @@ int main(int argc, char *argv[]) {
  
 
   mainLayout->addWidget(buttonWidget, 1); // 左侧添加按钮区域，占1份空间
-  mainLayout->addLayout(top, 3);          // 右侧添加主内容区，占3份空间
+  mainLayout->addLayout(top, 7);          // 右侧添加主内容区，占7份空间
 
   // 创建一个新的容器 QWidget 和布局 QVBoxLayout
   QWidget *containerWidget = new QWidget();
@@ -499,6 +526,7 @@ int main(int argc, char *argv[]) {
 
   // 将全屏切换按钮添加到主窗口的布局中
   top->addLayout(fullscreenLayout);
+  top->addWidget(toggleButton);
   window.setLayout(mainLayout); // 设置窗口的主布局
 
   window.setWindowTitle("tomeo");
