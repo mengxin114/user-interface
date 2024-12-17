@@ -201,10 +201,39 @@ int main(int argc, char *argv[]) {
   videoAndVolumeLayout->addSpacing(20);          // 增加间距
 
 
-  // 创建点赞、收藏和赞赏按钮
-  QPushButton *likeButton = new QPushButton("❤️");
-  QPushButton *favoriteButton = new QPushButton("⭐");
-  QPushButton *rewardButton = new QPushButton("🪙");
+  // 创建点赞、收藏和奖励按钮，设置透明背景和图标
+  QPushButton *likeButton = new QPushButton();
+  QPushButton *favoriteButton = new QPushButton();
+  QPushButton *rewardButton = new QPushButton();
+
+  // 设置图标
+  likeButton->setIcon(QIcon(":/icon/icon/heart-fill.svg"));
+  favoriteButton->setIcon(QIcon(":/icon/icon/star-fill.svg"));
+  rewardButton->setIcon(QIcon(":/icon/icon/coin.svg"));
+
+  // 设置图标大小
+  likeButton->setIconSize(QSize(30, 30));
+  favoriteButton->setIconSize(QSize(30, 30));
+  rewardButton->setIconSize(QSize(30, 30));
+
+  // 设置按钮样式（透明背景）
+  QString transparentButtonStyle =
+      "QPushButton {"
+      "   background: rgba(255, 255, 255, 0.2);"
+      "   border: none;"
+      "   padding: 5px;"
+      "}"
+      "QPushButton:hover {"
+      "   background: rgba(255, 255, 255, 0.4);"
+      "}"
+      "QPushButton:pressed {"
+      "   background: rgba(255, 255, 255, 0.6);"
+      "}";
+
+  // 应用样式
+  likeButton->setStyleSheet(transparentButtonStyle);
+  favoriteButton->setStyleSheet(transparentButtonStyle);
+  rewardButton->setStyleSheet(transparentButtonStyle);
 
   // 点赞功能
   QObject::connect(likeButton, &QPushButton::clicked, [&]() {
@@ -224,16 +253,7 @@ int main(int argc, char *argv[]) {
     QMessageBox::information(nullptr, "Message", "Sucess！");
   });
 
-  // 设置按钮样式
-  likeButton->setStyleSheet(
-      "QPushButton { font-size: 16px; color: white; background-color: #f66; "
-      "border-radius: 5px; padding: 10px; }");
-  favoriteButton->setStyleSheet(
-      "QPushButton { font-size: 16px; color: white; background-color: #fa0; "
-      "border-radius: 5px; padding: 10px; }");
-  rewardButton->setStyleSheet(
-      "QPushButton { font-size: 16px; color: white; background-color: #3a3; "
-      "border-radius: 5px; padding: 10px; }");
+
 
   // 创建一个水平布局，用于三个按钮
   QHBoxLayout *actionButtonsLayout = new QHBoxLayout();
@@ -249,24 +269,60 @@ int main(int argc, char *argv[]) {
   QObject::connect(volumeIcon, &VolumeIconButton::muteToggled, player, &ThePlayer::setMute);
 
   // pause and play button
-  QPushButton *playPauseButton = new QPushButton("pause/play");
-  QObject::connect(playPauseButton, &QPushButton::clicked, player,
-                   &ThePlayer::togglePlayPause);
-  // 快进和快退按钮
-  QPushButton *rewindButton = new QPushButton("<<");
-  QPushButton *fastForwardButton = new QPushButton(">>");
+  // 添加图标路径
+  QIcon playIcon(":/icon/icon/play-fill.svg");
+  QIcon pauseIcon(":/icon/icon/pause-fill.svg");
+
+  // 创建开始/暂停按钮
+  QPushButton *playPauseButton = new QPushButton();
+  playPauseButton->setIcon(playIcon); // 初始状态为“播放”图标
+  playPauseButton->setIconSize(QSize(40, 40)); // 设置图标大小
+
+  // 监听播放器状态变化，更新按钮图标
+  QObject::connect(player, &QMediaPlayer::stateChanged, [&](QMediaPlayer::State state) {
+      if (state == QMediaPlayer::PlayingState) {
+          playPauseButton->setIcon(pauseIcon); // 正在播放时显示暂停图标
+      } else {
+          playPauseButton->setIcon(playIcon); // 暂停或停止时显示播放图标
+      }
+  });
+
+  // 播放/暂停按钮的点击逻辑
+  QObject::connect(playPauseButton, &QPushButton::clicked, [&]() {
+      if (player->state() == QMediaPlayer::PlayingState) {
+          player->pause(); // 如果正在播放，则暂停
+      } else {
+          player->play();  // 如果暂停或停止，则播放
+      }
+  });
+
+  // 创建快退和快进按钮
+  QPushButton *rewindButton = new QPushButton();
+  QPushButton *fastForwardButton = new QPushButton();
+
+  // 设置图标
+  rewindButton->setIcon(QIcon(":/icon/icon/skip-start-fill.svg"));
+  fastForwardButton->setIcon(QIcon(":/icon/icon/skip-end-fill.svg"));
+
+  // 设置图标大小
+  rewindButton->setIconSize(QSize(30, 30));
+  fastForwardButton->setIconSize(QSize(30, 30));
+
+  // 应用样式
+  rewindButton->setStyleSheet(transparentButtonStyle);
+  fastForwardButton->setStyleSheet(transparentButtonStyle);
+
+  // 按钮功能（快退和快进逻辑）
   QObject::connect(rewindButton, &QPushButton::clicked, [&]() {
-    qint64 currentPosition = player->position(); // 当前播放位置
-    qint64 newPosition =
-        std::max(currentPosition - 5000, qint64(0)); // 快退 5 秒
-    player->setPosition(newPosition);                // 设置播放位置
+      qint64 currentPosition = player->position();
+      qint64 newPosition = std::max(currentPosition - 5000, qint64(0)); // 快退5秒
+      player->setPosition(newPosition);
   });
 
   QObject::connect(fastForwardButton, &QPushButton::clicked, [&]() {
-    qint64 currentPosition = player->position(); // 当前播放位置
-    qint64 newPosition =
-        std::min(currentPosition + 5000, player->duration()); // 快进 5 秒
-    player->setPosition(newPosition); // 设置播放位置
+      qint64 currentPosition = player->position();
+      qint64 newPosition = std::min(currentPosition + 5000, player->duration()); // 快进5秒
+      player->setPosition(newPosition);
   });
 
 
@@ -274,16 +330,16 @@ int main(int argc, char *argv[]) {
               "QPushButton {"
               "   width: 60px;" // 宽度设置为 60px
               "   height: 30px;" // 高度设置为 30px
-              "   background-color: #4CAF50;" // 按钮背景颜色
+              "   background: rgba(255, 255, 255, 0.2);" // 按钮背景颜色
               "   color: white;" // 按钮文字颜色
               "   border: none;" // 去掉边框
               "   border-radius: 15px;" // 圆角设置为半径，形成正方形按钮
               "} "
               "QPushButton:hover {"
-              "   background-color: #45a049;" // 鼠标悬停时按钮颜色
+              "    background: rgba(255, 255, 255, 0.4);" // 鼠标悬停时按钮颜色
               "} "
               "QPushButton:pressed {"
-              "   background-color: #388E3C;" // 按下时按钮颜色
+              "   background: rgba(255, 255, 255, 0.6);" // 按下时按钮颜色
               "}"
           );
 

@@ -82,12 +82,12 @@ public:
 
     // 设置静音图标
     void setMuteIcon() {
-        setIcon(QIcon(":/icon/a/no_voice.png"));
+        setIcon(QIcon(":/icon/icon/volume-mute.png"));
     }
 
     // 设置高音量图标
     void setHighVolumeIcon() {
-        setIcon(QIcon(":/icon/a/voice.png"));
+        setIcon(QIcon(":/icon/icon/volume-high.png"));
     }
 
     // 切换静音状态
