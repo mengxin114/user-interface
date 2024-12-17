@@ -29,6 +29,7 @@ private:
   int count;
   QSlider *volumeSlider;
   std::vector<int> unplayedIndices; // 未播放视频的索引列表
+  int currentVideoIndex = 0; // 当前播放的视频索引
 
 public:
   ThePlayer(QSlider *slider, QSlider *volumeSlider)
