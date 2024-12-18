@@ -22,25 +22,25 @@ void ThePlayer::setContent(std::vector<TheButton*>* b, std::vector<TheButtonInfo
 
 // 随机选择并播放未播放的视频
 void ThePlayer::shuffle() {
-    static int currentVideoIndex = -1; // 当前播放的视频索引
+    static int currentVideoIndex = -1;
 
-    // 如果只有一个视频，直接播放
     if (infos->size() <= 1) {
         currentVideoIndex = 0;
         jumpTo(&infos->at(currentVideoIndex));
+        pause(); // 切换到新视频后暂停播放
         return;
     }
 
     int nextIndex;
     do {
-        nextIndex = rand() % infos->size(); // 随机选择一个视频
-    } while (nextIndex == currentVideoIndex); // 确保不选择当前视频
+        nextIndex = rand() % infos->size();
+    } while (nextIndex == currentVideoIndex);
 
-    currentVideoIndex = nextIndex; // 更新当前视频索引
+    currentVideoIndex = nextIndex;
 
-    // 播放新视频
     TheButtonInfo* nextVideo = &infos->at(currentVideoIndex);
     jumpTo(nextVideo);
+    pause(); // 切换到新视频后暂停播放
 }
 
 
