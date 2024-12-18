@@ -22,24 +22,29 @@ void ThePlayer::setContent(std::vector<TheButton*>* b, std::vector<TheButtonInfo
 
 // 随机选择并播放未播放的视频
 void ThePlayer::shuffle() {
-    static std::vector<int> playedIndices;
+    static int currentVideoIndex = -1; // 当前播放的视频索引
 
-    // 重置播放列表
-    if (playedIndices.size() >= infos->size()) {
-        playedIndices.clear();
+    // 如果只有一个视频，直接播放
+    if (infos->size() <= 1) {
+        currentVideoIndex = 0;
+        jumpTo(&infos->at(currentVideoIndex));
+        return;
     }
 
     int nextIndex;
     do {
-        nextIndex = rand() % infos->size();
-    } while (std::find(playedIndices.begin(), playedIndices.end(), nextIndex) != playedIndices.end());
+        nextIndex = rand() % infos->size(); // 随机选择一个视频
+    } while (nextIndex == currentVideoIndex); // 确保不选择当前视频
 
-    playedIndices.push_back(nextIndex);
+    currentVideoIndex = nextIndex; // 更新当前视频索引
 
     // 播放新视频
-    TheButtonInfo* nextVideo = &infos->at(nextIndex);
+    TheButtonInfo* nextVideo = &infos->at(currentVideoIndex);
     jumpTo(nextVideo);
 }
+
+
+
 
 
 
@@ -47,9 +52,8 @@ void ThePlayer::shuffle() {
 void ThePlayer::playStateChanged(QMediaPlayer::State ms) {
     switch (ms) {
         case QMediaPlayer::StoppedState:
-            // 播放器已停止
             qDebug() << "Playback stopped.";
-            play();
+            shuffle(); // 切换到下一个视频而不是重播当前视频
             break;
         case QMediaPlayer::PlayingState:
             isPlaying = true;
@@ -64,12 +68,15 @@ void ThePlayer::playStateChanged(QMediaPlayer::State ms) {
 
 // 跳转到指定的视频
 void ThePlayer::jumpTo(TheButtonInfo* button) {
+    if (!button) {
+        qDebug() << "jumpTo called with null button!";
+        return;
+    }
+    qDebug() << "Playing new video:" << button->url->toString();
     setMedia(*button->url); // 设置新的视频文件
     play();                 // 开始播放
-
-    // 发出状态信号，更新播放按钮图标
-    emit stateChanged(QMediaPlayer::PlayingState);
 }
+
 
 
 
