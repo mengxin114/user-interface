@@ -27,6 +27,7 @@
 #include <vector>
 #include <QWindow>
 #include <QDesktopWidget>
+#include <QTimer>
 
 // read in videos and thumbnails to this directory
 std::vector<TheButtonInfo> getInfoIn(std::string loc) {
@@ -216,7 +217,7 @@ int main(int argc, char *argv[]) {
                                   "QPushButton:hover {"
                                   "   background-color:rgb(65, 66, 65);"
                                   "}");
-  
+
 
 
   // 创建一个水平布局，用于放置全屏切换按钮
@@ -263,17 +264,19 @@ int main(int argc, char *argv[]) {
     static int likeCount = 0;
     likeCount++;
     QMessageBox::information(nullptr, "Message",
-                             QString("Liked by：%1").arg(likeCount));
+                             QString(" ❤️ ：%1").arg(likeCount));
   });
 
   // 收藏功能
   QObject::connect(favoriteButton, &QPushButton::clicked, [&]() {
-    QMessageBox::information(nullptr, "Message", "Success!");
+    QMessageBox::information(nullptr, "???", "Success!");
   });
 
   // 赞赏功能
   QObject::connect(rewardButton, &QPushButton::clicked, [&]() {
-    QMessageBox::information(nullptr, "Message", "Sucess！");
+      static int coin = 0;
+      coin++;
+    QMessageBox::information(nullptr, "-----", QString("🪙 ：%1").arg(coin));
   });
 
 
@@ -428,6 +431,7 @@ int main(int argc, char *argv[]) {
   QPushButton *toggleButton = new QPushButton("Hide Left Panel");
   toggleButton->setStyleSheet("QPushButton {"
                               "   background-color: #4CAF50;"
+                              "   display:none;"
                               "   color: white;"
                               "   border: none;"
                               "   padding: 10px 20px;"
@@ -440,13 +444,11 @@ int main(int argc, char *argv[]) {
   // 连接按钮的点击事件
   QObject::connect(toggleButton, &QPushButton::clicked, [&]() {
       if (buttonWidget->isVisible()) {
-          // 如果左侧按钮区域当前可见，则隐藏它
           buttonWidget->hide();
-          toggleButton->setText("Show Left Panel");
+          toggleButton->setText("");
       } else {
-          // 如果左侧按钮区域当前隐藏，则显示它
           buttonWidget->show();
-          toggleButton->setText("Hide Left Panel");
+          toggleButton->setText("");
       }
   });
 
@@ -579,6 +581,38 @@ int main(int argc, char *argv[]) {
           fullscreenButton->setText("Exit Fullscreen");
       }
   });
+
+  // 创建一个定时器用于监听窗口大小变化
+  QTimer *resizeTimer = new QTimer();
+  resizeTimer->setInterval(500); // 每 500 毫秒检查一次窗口大小
+  resizeTimer->start();
+
+  QObject::connect(resizeTimer, &QTimer::timeout, [&]() {
+      // 获取窗口当前的内容区域大小
+      int width = window.geometry().width();
+      int height = window.geometry().height();
+
+      // 计算宽高比
+      double aspectRatio = static_cast<double>(width) / height;
+
+      // 判断窗口比例
+      if (aspectRatio < 1.3) { // 小于 1.1
+          if (buttonWidget->isVisible()) {
+              qDebug() << "Hiding left panel automatically";
+              buttonWidget->hide(); // 隐藏左侧栏
+          }
+          toggleButton->setDisabled(true); // 设置按钮为不可点击
+          toggleButton->setText("sidebar Hidden"); // 更新按钮文本
+      } else { // 大于等于 1.1
+          if (!buttonWidget->isVisible()) {
+              qDebug() << "Showing left panel automatically";
+              buttonWidget->show(); // 显示左侧栏
+          }
+          toggleButton->setDisabled(true); // 依然保持按钮不可点击
+          toggleButton->setText("sidebar Visible"); // 更新按钮文本
+      }
+  });
+
 
 
   // showtime!
