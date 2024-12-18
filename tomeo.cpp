@@ -189,7 +189,7 @@ int main(int argc, char *argv[]) {
 
   // 创建声音图标按钮
   VolumeIconButton *volumeIcon = new VolumeIconButton();
-  volumeIcon->setHighVolumeIcon(); // 初始设置为高音量图标
+  volumeIcon->setMuteIcon(); // 初始设置为静音图标
 
   // 将音量滑块和图标添加到垂直布局中
   volumeLayout->addWidget(volumeSlider);
@@ -203,28 +203,6 @@ int main(int argc, char *argv[]) {
   videoAndVolumeLayout->addLayout(volumeLayout); // 添加新的垂直布局
   videoAndVolumeLayout->addSpacing(20);          // 增加间距
 
-  // 全屏切换按钮
-  QPushButton *fullscreenButton = new QPushButton("Fullscreen");
-  // 全屏窗口
-  QWidget *fullscreenWindow = nullptr;
-  fullscreenButton->setStyleSheet("QPushButton {"
-                                  "   background-color: rgb(65, 66, 65);"
-                                  "   color: white;"
-                                  "   border: none;"
-                                  "   padding: 10px 20px;"
-                                  "   border-radius: 8px;"
-                                  "}"
-                                  "QPushButton:hover {"
-                                  "   background-color:rgb(65, 66, 65);"
-                                  "}");
-
-
-
-  // 创建一个水平布局，用于放置全屏切换按钮
-  QHBoxLayout *fullscreenLayout = new QHBoxLayout();
-  fullscreenLayout->addWidget(fullscreenButton);
-
-
   // 创建点赞、收藏和奖励按钮，设置透明背景和图标
   QPushButton *likeButton = new QPushButton();
   QPushButton *favoriteButton = new QPushButton();
@@ -236,16 +214,16 @@ int main(int argc, char *argv[]) {
   rewardButton->setIcon(QIcon(":/icon/icon/coin.svg"));
 
   // 设置图标大小
-  likeButton->setIconSize(QSize(30, 30));
-  favoriteButton->setIconSize(QSize(30, 30));
-  rewardButton->setIconSize(QSize(30, 30));
+  likeButton->setIconSize(QSize(20, 20));
+  favoriteButton->setIconSize(QSize(20, 20));
+  rewardButton->setIconSize(QSize(20, 20));
 
   // 设置按钮样式（透明背景）
   QString transparentButtonStyle =
       "QPushButton {"
-      "   background: rgba(255, 255, 255, 0.2);"
+      "   background: rgba(255, 255, 255, 0.1);"
       "   border: none;"
-      "   padding: 5px;"
+      "   padding: 100px 100px;"
       "}"
       "QPushButton:hover {"
       "   background: rgba(255, 255, 255, 0.4);"
@@ -269,7 +247,7 @@ int main(int argc, char *argv[]) {
 
   // 收藏功能
   QObject::connect(favoriteButton, &QPushButton::clicked, [&]() {
-    QMessageBox::information(nullptr, "???", "Success!");
+    QMessageBox::information(nullptr, "???", "√√√√√");
   });
 
   // 赞赏功能
@@ -278,14 +256,6 @@ int main(int argc, char *argv[]) {
       coin++;
     QMessageBox::information(nullptr, "-----", QString("🪙 ：%1").arg(coin));
   });
-
-
-
-  // 创建一个水平布局，用于三个按钮
-  QHBoxLayout *actionButtonsLayout = new QHBoxLayout();
-  actionButtonsLayout->addWidget(likeButton);
-  actionButtonsLayout->addWidget(favoriteButton);
-  actionButtonsLayout->addWidget(rewardButton);
 
   // the QMediaPlayer which controls the playback
   ThePlayer *player = new ThePlayer(slider, volumeSlider);
@@ -427,14 +397,19 @@ int main(int argc, char *argv[]) {
   QVBoxLayout *layout = new QVBoxLayout();
   buttonWidget->setLayout(layout);
 
+  // 加载图标
+  QIcon sidebarVisibleIcon(":/icon/icon/laptop-fill.svg");   // Sidebar 可见时的图标
+  QIcon sidebarHiddenIcon(":/icon/icon/phone-fill.svg");     // Sidebar 隐藏时的图标
+
   // 新增一个按钮，用于切换左侧按钮区域的显示与隐藏
-  QPushButton *toggleButton = new QPushButton("Hide Left Panel");
+  QPushButton *toggleButton = new QPushButton();
+  toggleButton->setIcon(sidebarVisibleIcon); // 初始状态：Sidebar 可见
   toggleButton->setStyleSheet("QPushButton {"
-                              "   background-color: #4CAF50;"
+                              "   background:transparent;"
                               "   display:none;"
                               "   color: white;"
                               "   border: none;"
-                              "   padding: 10px 20px;"
+                              "   padding: 15px 15px;"
                               "   border-radius: 8px;"
                               "}"
                               "QPushButton:hover {"
@@ -452,6 +427,71 @@ int main(int argc, char *argv[]) {
       }
   });
 
+
+  // 加载图标
+  QIcon fullscreenIcon(":/icon/icon/fullscreen.svg");      // 全屏图标
+  QIcon fullscreenExitIcon(":/icon/icon/fullscreen-exit.svg"); // 退出全屏图标
+
+  // 全屏切换按钮
+  QPushButton *fullscreenButton = new QPushButton();
+  fullscreenButton->setIcon(fullscreenIcon);
+  fullscreenButton->setIconSize(QSize(20, 20)); // 设置图标大小
+
+  // 全屏窗口
+  QWidget *fullscreenWindow = nullptr;
+  fullscreenButton->setStyleSheet("QPushButton {"
+                                  "   background-color: rgba(0, 0, 0, 0.1);"
+                                  "   color: white;"
+                                  "   border: none;"
+                                  "   padding: 15px 15px;"
+                                  "   border-radius: 8px;"
+                                  "}"
+                                  "QPushButton:hover {"
+                                  "   background-color:rgb(100, 100, 100);"
+                                  "}");
+
+  // 创建一个水平布局，用于放置全屏切换按钮
+  QHBoxLayout *fullscreenLayout = new QHBoxLayout();
+  fullscreenLayout->addWidget(toggleButton);
+  fullscreenLayout->addWidget(fullscreenButton);
+
+
+  // 创建一个新的水平布局用于 like、favorite 和 reward 按钮
+  QHBoxLayout *actionButtonsLayout = new QHBoxLayout();
+  actionButtonsLayout->setSpacing(30); // 按钮之间的间距
+  actionButtonsLayout->setAlignment(Qt::AlignLeft); // 按钮左对齐
+
+  // 将按钮设置为正方形
+  int buttonSize = 35; // 按钮的宽高
+  likeButton->setFixedSize(buttonSize, buttonSize);
+  favoriteButton->setFixedSize(buttonSize, buttonSize);
+  rewardButton->setFixedSize(buttonSize, buttonSize);
+
+  // 调整按钮的样式，保持为正方形
+  QString squareButtonStyle =
+      "QPushButton {"
+      "   background: rgba(255, 255, 255, 0.1);"
+      "   border: none;"
+      "   border-radius: 5px;" // 可选：轻微圆角
+      "   padding: 5px;"
+      "} "
+      "QPushButton:hover {"
+      "   background: rgba(255, 255, 255, 0.3);"
+      "} "
+      "QPushButton:pressed {"
+      "   background: rgba(255, 255, 255, 0.5);"
+      "}";
+
+  likeButton->setStyleSheet(squareButtonStyle);
+  favoriteButton->setStyleSheet(squareButtonStyle);
+  rewardButton->setStyleSheet(squareButtonStyle);
+
+  // 将按钮添加到新布局
+  actionButtonsLayout->addWidget(likeButton);
+  actionButtonsLayout->addWidget(favoriteButton);
+  actionButtonsLayout->addWidget(rewardButton);
+
+  fullscreenLayout->insertLayout(0, actionButtonsLayout); // 将按钮放置到布局最左侧
 
   // create the four buttons
   for (int i = 0; i < 4; i++) {
@@ -498,9 +538,6 @@ int main(int argc, char *argv[]) {
   QWidget *containerWidget = new QWidget();
   QVBoxLayout *containerLayout = new QVBoxLayout(); // 包含所有子布局的垂直布局
 
-  // 添加点赞、收藏和赞赏按钮布局
-  containerLayout->addLayout(actionButtonsLayout);
-
   // 添加视频和音量控件的布局
   containerLayout->addLayout(videoAndVolumeLayout);
 
@@ -528,8 +565,51 @@ int main(int argc, char *argv[]) {
 
   // 将全屏切换按钮添加到主窗口的布局中
   top->addLayout(fullscreenLayout);
-  top->addWidget(toggleButton);
   window.setLayout(mainLayout); // 设置窗口的主布局
+
+  // 连接全屏切换按钮的点击事件
+  QObject::connect(fullscreenButton, &QPushButton::clicked, [&]() {
+      if (fullscreenWindow) {
+          // 如果全屏窗口已经存在，则退出全屏
+          fullscreenWindow->close();
+          fullscreenWindow = nullptr;
+
+          // 检查是否已添加，避免重复添加
+          if (videoAndVolumeLayout->indexOf(videoWidget) == -1) {
+              videoAndVolumeLayout->insertWidget(0, videoWidget); // 将视频控件重新添加回布局
+          }
+          if (videoAndVolumeLayout->indexOf(volumeLayout) == -1) {
+              videoAndVolumeLayout->addLayout(volumeLayout); // 将音量控件重新添加回布局
+          }
+
+          // 重新将按钮添加到主窗口的 fullscreenLayout
+          if (fullscreenLayout->indexOf(fullscreenButton) == -1) {
+              fullscreenLayout->addWidget(fullscreenButton); // 确保按钮重新添加
+          }
+
+          // 重新显示主窗口
+          window.show();
+          fullscreenButton->setIcon(fullscreenIcon); // 切换回全屏图标
+
+          videoWidget->show();
+          videoWidget->setFocus();
+      } else {
+          // 进入全屏
+          fullscreenWindow = new QWidget();
+          fullscreenWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+          fullscreenWindow->setGeometry(QApplication::desktop()->screenGeometry());
+
+          QVBoxLayout *layout = new QVBoxLayout(fullscreenWindow);
+          layout->addWidget(videoWidget); // 添加视频控件到全屏
+          layout->addWidget(fullscreenButton); // 添加按钮到全屏
+          fullscreenWindow->setLayout(layout);
+
+          fullscreenWindow->showFullScreen();
+          window.hide();
+          fullscreenButton->setIcon(fullscreenExitIcon); // 切换为退出全屏图标
+      }
+  });
+
 
   window.setWindowTitle("tomeo");
   window.setMinimumSize(800, 680);
@@ -544,75 +624,38 @@ int main(int argc, char *argv[]) {
                    &QSlider::setValue);
    // 连接全屏切换按钮的点击事件
   // 退出全屏的逻辑
-  QObject::connect(fullscreenButton, &QPushButton::clicked, [&]() {
-      if (fullscreenWindow) {
-          // 如果全屏窗口已经存在，则退出全屏
-          fullscreenWindow->close();
-          fullscreenWindow = nullptr;
+fullscreenButton->setIconSize(QSize(20, 20)); // 设置图标大小
 
-          // 检查是否已添加，避免重复添加
-          if (videoAndVolumeLayout->indexOf(videoWidget) == -1) {
-              videoAndVolumeLayout->insertWidget(0, videoWidget);
-          }
-          if (videoAndVolumeLayout->indexOf(volumeLayout) == -1) {
-              videoAndVolumeLayout->addLayout(volumeLayout);
-          }
+// 创建一个定时器用于监听窗口大小变化
+QTimer *resizeTimer = new QTimer();
+resizeTimer->setInterval(500); // 每 500 毫秒检查一次窗口大小
+resizeTimer->start();
 
-          // 重新显示主窗口
-          fullscreenLayout->addWidget(fullscreenButton);
-          window.show();
-          fullscreenButton->setText("Fullscreen");
+QObject::connect(resizeTimer, &QTimer::timeout, [&]() {
+    // 获取窗口当前的内容区域大小
+    int width = window.geometry().width();
+    int height = window.geometry().height();
 
-          videoWidget->show();
-          videoWidget->setFocus();
-      } else {
-          // 进入全屏
-          fullscreenWindow = new QWidget();
-          fullscreenWindow->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-          fullscreenWindow->setGeometry(QApplication::desktop()->screenGeometry());
+    // 计算宽高比
+    double aspectRatio = static_cast<double>(width) / height;
 
-          QVBoxLayout *layout = new QVBoxLayout(fullscreenWindow);
-          layout->addWidget(videoWidget); // 添加视频控件到全屏
-          layout->addWidget(fullscreenButton);
-          fullscreenWindow->setLayout(layout);
-
-          fullscreenWindow->showFullScreen();
-          window.hide();
-          fullscreenButton->setText("Exit Fullscreen");
-      }
-  });
-
-  // 创建一个定时器用于监听窗口大小变化
-  QTimer *resizeTimer = new QTimer();
-  resizeTimer->setInterval(500); // 每 500 毫秒检查一次窗口大小
-  resizeTimer->start();
-
-  QObject::connect(resizeTimer, &QTimer::timeout, [&]() {
-      // 获取窗口当前的内容区域大小
-      int width = window.geometry().width();
-      int height = window.geometry().height();
-
-      // 计算宽高比
-      double aspectRatio = static_cast<double>(width) / height;
-
-      // 判断窗口比例
-      if (aspectRatio < 1.3) { // 小于 1.1
-          if (buttonWidget->isVisible()) {
-              qDebug() << "Hiding left panel automatically";
-              buttonWidget->hide(); // 隐藏左侧栏
-          }
-          toggleButton->setDisabled(true); // 设置按钮为不可点击
-          toggleButton->setText("sidebar Hidden"); // 更新按钮文本
-      } else { // 大于等于 1.1
-          if (!buttonWidget->isVisible()) {
-              qDebug() << "Showing left panel automatically";
-              buttonWidget->show(); // 显示左侧栏
-          }
-          toggleButton->setDisabled(true); // 依然保持按钮不可点击
-          toggleButton->setText("sidebar Visible"); // 更新按钮文本
-      }
-  });
-
+    // 判断窗口比例
+    if (aspectRatio < 1.3) { // 小于 1.3，隐藏 Sidebar
+        if (buttonWidget->isVisible()) {
+            qDebug() << "Hiding left panel automatically";
+            buttonWidget->hide(); // 隐藏左侧栏
+            toggleButton->setIcon(sidebarHiddenIcon); // 更新为隐藏状态图标
+        }
+        toggleButton->setDisabled(true); // 设置按钮为不可点击
+    } else { // 大于等于 1.3，显示 Sidebar
+        if (!buttonWidget->isVisible()) {
+            qDebug() << "Showing left panel automatically";
+            buttonWidget->show(); // 显示左侧栏
+            toggleButton->setIcon(sidebarVisibleIcon); // 更新为可见状态图标
+        }
+        toggleButton->setDisabled(true); // 依然保持按钮不可点击
+    }
+});
 
 
   // showtime!

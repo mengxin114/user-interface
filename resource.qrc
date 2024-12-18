@@ -9,7 +9,11 @@
     <file>icon/skip-end-fill.svg</file>
     <file>icon/skip-start-fill.svg</file>
     <file>icon/volume-mute.png</file> 
-    <file>icon/volume-high.png</file> 
+    <file>icon/volume-high.png</file>
+    <file>icon/fullscreen-exit.svg</file> 
+    <file>icon/fullscreen.svg</file> 
+    <file>icon/laptop-fill.svg</file>  
+    <file>icon/phone-fill.svg</file>   
 </qresource>
 </RCC>
 
